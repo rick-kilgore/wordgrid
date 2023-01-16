@@ -21,13 +21,6 @@ specials: Dict[int, str] = {
   76: DW, 80: TL, 84: TL, 88: DW,
   90: TL, 94: DL, 100: DL, 104: TL,
   108: DW, 116: DW,
-#  120: TL, 124: DL, 130: DL, 134: TL,
-#  136: DW, 140: TL, 144: TL, 148: DW,
-#  152: DL, 156: DL, 158: DL, 162: DL,
-#  165: TW, 168: TL, 172: DW, 176: TL, 179: TW,
-#  181: DL, 184: DL, 190: DL, 193: DL,
-#  197: DL, 200: DW, 204: DW, 207: DL,
-#  213: TW, 216: TL, 218: TL, 221: TW,
 }
 
 class GridDef:
@@ -38,7 +31,6 @@ class GridDef:
 
 class CPos:
   def __init__(self, grid: GridDef, i: int):
-    self.grid = grid
     self.i = i
     self.x = i % grid.w
     self.y = i // grid.w
@@ -51,13 +43,41 @@ class Dir(Enum):
   LEFT = 4
 
 
+def opposite(dirn: Dir) -> Dir:
+  match dirn:
+    case Dir.UP:
+      return Dir.DOWN
+    case Dir.DOWN:
+      return Dir.UP
+    case Dir.LEFT:
+      return Dir.RIGHT
+    case Dir.RIGHT:
+      return Dir.LEFT
+  raise Exception(f"unrecognized direction: {dirn}")
+
+
 class Cell:
-  def __init__(self, pos: CPos, ctype: str):
-    self.grid = pos.grid
-    self.pos = pos
-    self.ctype = ctype
-    self.value = None # no letter placed at start
-    
+  def __init__(self, grid, pos: CPos, ctype: str):
+    self.grid = grid
+    self.pos: CPos = pos
+    self.ctype: str = ctype
+    self.value: chr = None # no letter placed at start
+    self.added: bool = False
+
+  def is_middle_cell(self) -> bool:
+    return self.pos.x == self.grid.w // 2 and self.pos.y == self.grid.h // 2
+
+  def is_anchored(self):
+    up: Cell = self.grid.up_from(self)
+    down: Cell = self.grid.down_from(self)
+    left: Cell = self.grid.left_from(self)
+    right: Cell = self.grid.right_from(self)
+    return (
+      (up and up.value)
+      or (down and down.value)
+      or (left and left.value)
+      or (right and right.value)
+    )
 
 
 class Grid(GridDef):
@@ -69,38 +89,49 @@ class Grid(GridDef):
       pos: CPos = CPos(self, i)
       isp = min(i, self.size - i - 1)
       ctype = specials[isp] if isp in specials else BLANK
-      self.cells.append(Cell(pos, ctype))
+      self.cells.append(Cell(self, pos, ctype))
+
+  def show(self) -> str:
+    showstr: str = ""
+    for y in range(self.h):
+      for x in range(self.w):
+        cell: Cell = self.at(x, y)
+        if cell.value is not None:
+          esc: str = 32 if cell.added else 35
+          showstr += f" [1;{esc}m{cell.value}[m "
+        else:
+          showstr += f" {self.at(x, y).ctype}"
+      showstr += "\n"
+
+    return showstr
 
   def at(self, x: int, y: int) -> Cell:
     return self.cells[self.w * y + x]
 
-  def set(self, x: int, y: int, cell: Cell) -> None:
-    self.cells[self.w * y + x] = cell
-
-  def next_cell(self, cell: Cell, dir: Dir) -> Cell:
-    match dir:
+  def next_cell(self, cell: Cell, dirn: Dir) -> Cell:
+    match dirn:
       case Dir.UP:
-        return self.up()
+        return self.up_from(cell)
       case Dir.DOWN:
-        return self.down()
+        return self.down_from(cell)
       case Dir.LEFT:
-        return self.left()
+        return self.left_from(cell)
       case Dir.RIGHT:
-        return self.right()
-    raise f"unrecognized direction: {dir}"
+        return self.right_from(cell)
+    raise Exception(f"unrecognized direction: {dirn}")
         
 
-  def left(self, cell: Cell) -> Cell:
-    return self.grid[self.pos.i - 1] if self.pos.x > 0 else None
+  def left_from(self, cell: Cell) -> Cell:
+    return self.cells[cell.pos.i - 1] if cell.pos.x > 0 else None
 
-  def right(self, cell: Cell) -> Cell:
-    return self.grid[self.pos.i + 1] if self.pos.x < self.grid.w - 1 else None
+  def right_from(self, cell: Cell) -> Cell:
+    return self.cells[cell.pos.i + 1] if cell.pos.x < self.w - 1 else None
 
-  def up(self, cell: Cell) -> Cell:
-    return self.grid[self.pos.i - self.grid.w] if self.pos.y > 0 else None
+  def up_from(self, cell: Cell) -> Cell:
+    return self.cells[cell.pos.i - self.w] if cell.pos.y > 0 else None
 
-  def down(self, cell: Cell) -> Cell:
-    return self.grid[self.pos.i + self.grid.w] if self.pos.y < self.grid.h - 1 else None
+  def down_from(self, cell: Cell) -> Cell:
+    return self.cells[cell.pos.i + self.w] if cell.pos.y < self.h - 1 else None
 
   def upstr(self, cell: Cell) -> Tuple[str, Cell]:
     return self.string(cell, Dir.UP)
@@ -114,13 +145,34 @@ class Grid(GridDef):
   def rightstr(self, cell: Cell) -> Tuple[str, Cell]:
     return self.string(cell, Dir.RIGHT)
 
-  def string(self, cell: Cell, dir: Dir) -> Tuple[str, Cell]:
+  # string of letters starting from but not including
+  # the passed-in cell in direction dirn, up to a blank
+  # cell or the end of the board
+  def string(self, cell: Cell, dirn: Dir) -> Tuple[str, Cell]:
     string: str = ""
     end: Cell = None
-    nxt: Cell = self.next_cell(dir)
+    nxt: Cell = self.next_cell(cell, dirn)
     while (nxt is not None and nxt.value is not None):
       string += nxt.value
       end = nxt
-      nxt = nxt.next_cell(dir)
+      nxt = self.next_cell(nxt, dirn)
 
     return string, end
+
+
+
+def grid_copy(oldgrid: Grid) -> Grid:
+  # fixme: need to not initialize the cells array every time
+  newgrid = Grid()
+  for i, c in enumerate(oldgrid.cells):
+    newcell = Cell(newgrid, c.pos, c.ctype)
+    newcell.value = c.value
+    newcell.added = c.added
+    newgrid.cells[i] = newcell
+  return newgrid
+
+
+def grid_add_letter(grid: Grid, pos: CPos, letter: chr) -> None:
+  grid.cells[pos.i].value = letter
+  grid.cells[pos.i].added = True
+

@@ -2,10 +2,14 @@
 
 import os
 import pickle
+import sys
 import time
-from trie import Trie, TrieNode
 
-from grid import Grid
+from trie import Trie, TrieNode
+from grid import Cell, Dir, Grid
+from search import (
+  SearchCriteria, findwords,
+)
 
 last_time = -1.0
 def report_time(msg: str) -> float:
@@ -29,7 +33,7 @@ def load_trie() -> Trie:
 
     for line in lines:
       word = line.lower().strip()
-      if len(w) > 0:
+      if len(word) > 0:
         dictwords.insert(word)
 
     report_time(f"writing dictionary to {pickle_filename}")
@@ -41,7 +45,12 @@ def load_trie() -> Trie:
 
 # main
 grid: Grid = Grid()
-for y in range(grid.h):
-  for x in range(grid.w):
-    print(f" {grid.at(x, y).ctype}", end="")
-  print()
+grid.at(7, 7).value = 'a'
+print(grid.show())
+
+trie: Trie = load_trie()
+x, y = int(sys.argv[1]), int(sys.argv[2])
+srch: SearchCriteria = SearchCriteria(grid, grid.at(x, y), Dir.DOWN, "plpe")
+words = findwords(srch, trie)
+print(words)
+
