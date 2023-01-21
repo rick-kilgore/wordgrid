@@ -91,8 +91,8 @@ srtd: List[str] = sorted(words.keys(), key=lambda w: words[w].score)
 out: str = "\n  ".join([str(words[w]) for w in srtd])
 print(f"found:\n{out}")
 
-print(f"\ntop 3 are:")
-for w in srtd[-3:]:
+print(f"\ntop 10 are:")
+for w in srtd[-10:]:
   gcl: Grid = grid.clone()
   fw: FoundWord = words[w]
   print(f"  {fw}\n")

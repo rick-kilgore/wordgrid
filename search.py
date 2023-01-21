@@ -71,6 +71,7 @@ def add_existing(ctx: SearchContext, cell: Cell) -> Tuple[SearchContext, Optiona
   sofar: str = ctx.sofar + cell.value
   nxt_cell = ctx.grid.next_cell(cell, ctx.srch.dirn)
   nxt_ctx: SearchContext = next_context(ctx, nxt_cell, sofar, ctx.letters)
+  nxt_ctx.score += LETTERS[cell.value.lower()]
   return nxt_ctx, nxt_cell
 
 def next_context(ctx: SearchContext, nxt_cell: Optional[Cell], sofar: str, letters: str) -> SearchContext:
@@ -171,7 +172,7 @@ def addword(ctx: SearchContext, cell: Cell, words: Dict[str, FoundWord]) -> None
   score: int = ctx.score * ctx.scoremult + ctx.scoreadd
   pos: CPos = cell.pos.traverse(len(ctx.sofar) - 1, opposite(ctx.srch.dirn))
   words[ctx.sofar] = FoundWord(ctx.sofar, score, pos, ctx.srch.dirn)
-  print(f"'{ctx.sofar}' at ({pos.x},{pos.y})", flush=True)
+  print(f"{words[ctx.sofar]} at ({pos.x},{pos.y})", flush=True)
   # print(ctx.grid.show() + "\n", flush=True)
   
 
