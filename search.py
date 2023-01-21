@@ -55,12 +55,13 @@ class FoundWord:
 
 # ctx contains the Cell to which we are adding the letter
 # the returned nxt_ctx points to the next Cell in the search direction
-def add_letter(ctx: SearchContext, cell: Cell, ch: str, depth: int) -> Tuple[SearchContext, Optional[Cell]]:
+def add_letter(ctx: SearchContext, cell: Cell, ltr: str, ch: str, depth: int) -> Tuple[SearchContext, Optional[Cell]]:
   sofar: str = ctx.sofar + ch
-  letters = ctx.letters.replace(ch, '', 1)
+  letters = ctx.letters.replace(ltr, '', 1)
   nxt_cell = ctx.grid.next_cell(cell, ctx.srch.dirn)
   nxt_ctx: SearchContext = next_context(ctx, nxt_cell, sofar, letters)
-  nxt_ctx.score += LETTERS[ch.lower()] * cell.letter_mult()
+  if ch == ltr:
+    nxt_ctx.score += LETTERS[ch.lower()] * cell.letter_mult()
   nxt_ctx.scoremult *= cell.word_mult()
   return nxt_ctx, nxt_cell
 
@@ -114,21 +115,23 @@ def search(ctx: SearchContext, cell: Optional[Cell], depth: int) -> Dict[str, in
   if cell is not None:
     if cell.value is None:
       letters = ctx.letters
-      for ch in unique_letters(letters):
-        nxt_ctx, nxt_cell = add_letter(ctx, cell, ch, depth)
-        # print(f"{'  ' * depth}{ctx.sofar} -> {nxt_ctx.sofar}       ({nxt_ctx.letters})")
+      for ltr in unique_letters(letters):
+        chars: str = "abcdefghijklmnopqrstuvwxyz" if ltr == '.' else ltr
+        for ch in chars:
+          nxt_ctx, nxt_cell = add_letter(ctx, cell, ltr, ch, depth)
+          # print(f"{'  ' * depth}{ctx.sofar} -> {nxt_ctx.sofar}       ({nxt_ctx.letters})")
 
-        crosscheck, scoreadd = check_cross_direction(ctx, cell, ch)
-        nxt_ctx.scoreadd += scoreadd
-        # print(f"cross direction check for {ctx.sofar} + {ch} = {crosscheck}", flush=True)
+          crosscheck, scoreadd = check_cross_direction(ctx, cell, ltr, ch)
+          nxt_ctx.scoreadd += scoreadd
+          # print(f"cross direction check for {ctx.sofar} + {ch} = {crosscheck}", flush=True)
 
-        # fixme: probably should keep TrieNode so this check is O(1)
-        tnode: Optional[TrieNode] = ctx.srch.trie.isprefix(nxt_ctx.sofar)
-        if tnode is not None and crosscheck:
-          if is_word_boundary(nxt_cell) and tnode.isword and ctx.is_anchored:
-            addword(nxt_ctx, cell, words)
-          rres = search(nxt_ctx, nxt_cell, depth+1)
-          addwords(words, rres)
+          # fixme: probably should keep TrieNode so this check is O(1)
+          tnode: Optional[TrieNode] = ctx.srch.trie.isprefix(nxt_ctx.sofar)
+          if tnode is not None and crosscheck:
+            if is_word_boundary(nxt_cell) and tnode.isword and ctx.is_anchored:
+              addword(nxt_ctx, cell, words)
+            rres = search(nxt_ctx, nxt_cell, depth+1)
+            addwords(words, rres)
 
     else:
       nxt_ctx, nxt_cell = add_existing(ctx, cell)
@@ -141,7 +144,7 @@ def search(ctx: SearchContext, cell: Optional[Cell], depth: int) -> Dict[str, in
 
   return words
 
-def check_cross_direction(ctx: SearchContext, cell: Cell, letter: str) -> Tuple[bool, int]:
+def check_cross_direction(ctx: SearchContext, cell: Cell, ltr: str, ch: str) -> Tuple[bool, int]:
   match ctx.srch.dirn:
     case Dir.RIGHT:
       prefix, start = ctx.grid.upstr(cell)
@@ -155,14 +158,15 @@ def check_cross_direction(ctx: SearchContext, cell: Cell, letter: str) -> Tuple[
   if start is None and end is None:
     return True, 0
 
-  fullstr: str = prefix + letter + suffix
+  fullstr: str = prefix + ch + suffix
   tnode = ctx.srch.trie.isprefix(fullstr)
   if tnode is not None and tnode.isword:
     scoreadd: int = 0
-    for ch in fullstr:
-      scoreadd += LETTERS[ch.lower()]
+    for crossch in prefix + suffix:
+      scoreadd += LETTERS[crossch.lower()]
     scoreadd *= cell.word_mult()
-    scoreadd += LETTERS[letter.lower()] * (cell.letter_mult() - 1)
+    if ltr == ch:
+      scoreadd += LETTERS[ch.lower()] * cell.letter_mult() * cell.word_mult()
     return True, scoreadd
 
   return False, 0
