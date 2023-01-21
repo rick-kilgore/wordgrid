@@ -1,27 +1,10 @@
-#!/usr/bin/python3
+from typing import Any, Dict, List, Optional, Tuple
 
-from enum import Enum
-from typing import Dict, List, Tuple
-
-
-BLANK: str = "__"
-DL: str = "DL"
-TL: str = "TL"
-DW: str = "DW"
-TW: str = "TW"
-
-GWIDTH: int = 15
-GHEIGHT: int = 15
-specials: Dict[int, str] = {
-  3: TW, 6: TL, 8: TL, 11: TW,
-  17: DL, 20: DW, 24: DW, 27: DL,
-  31: DL, 34: DL, 40: DL, 43: DL,
-  45: TW, 48: TL, 52: DW, 56: TL, 59: TW,
-  62: DL, 66: DL, 68: DL, 72: DL,
-  76: DW, 80: TL, 84: TL, 88: DW,
-  90: TL, 94: DL, 100: DL, 104: TL,
-  108: DW, 116: DW,
-}
+import consts
+from consts import (
+  BLANK, GWIDTH, GHEIGHT,
+  Dir, opposite, MULT_SQUARES,
+)
 
 class GridDef:
   def __init__(self, w: int, h: int):
@@ -31,73 +14,105 @@ class GridDef:
 
 class CPos:
   def __init__(self, grid: GridDef, i: int):
+    self.grid = grid
     self.i = i
     self.x = i % grid.w
     self.y = i // grid.w
 
 
-class Dir(Enum):
-  UP = 1
-  RIGHT = 2
-  DOWN = 3
-  LEFT = 4
-
-
-def opposite(dirn: Dir) -> Dir:
-  match dirn:
-    case Dir.UP:
-      return Dir.DOWN
-    case Dir.DOWN:
-      return Dir.UP
-    case Dir.LEFT:
-      return Dir.RIGHT
-    case Dir.RIGHT:
-      return Dir.LEFT
-  raise Exception(f"unrecognized direction: {dirn}")
-
+  # WARNING: this method assumes the caller knows
+  # what they are doing in that the requested
+  # traversal will not go off the board
+  def traverse(self, ncells: int, dirn: Dir): # -> CPos
+    match dirn:
+      case Dir.UP:
+        return CPos(self.grid, self.i - (self.grid.w * ncells))
+      case Dir.DOWN:
+        return CPos(self.grid, self.i + (self.grid.w * ncells))
+      case Dir.LEFT:
+        return CPos(self.grid, self.i - ncells)
+      case Dir.RIGHT:
+        return CPos(self.grid, self.i + ncells)
+      case _:
+        raise Exception(f"unrecognized direction: {dirn}")
 
 class Cell:
-  def __init__(self, grid, pos: CPos, ctype: str):
+  def __init__(self, grid, pos: CPos, ctype: str, value: Optional[str] = None):
     self.grid = grid
     self.pos: CPos = pos
     self.ctype: str = ctype
-    self.value: chr = None # no letter placed at start
+    self.value: Optional[str] = value
     self.added: bool = False
+
+  def letter_mult(self) -> int:
+    match self.ctype:
+      case consts.DL:
+        return 2
+      case consts.TL:
+        return 3
+      case _:
+        return 1
+
+  def word_mult(self) -> int:
+    match self.ctype:
+      case consts.DW:
+        return 2
+      case consts.TW:
+        return 3
+      case _:
+        return 1
 
   def is_middle_cell(self) -> bool:
     return self.pos.x == self.grid.w // 2 and self.pos.y == self.grid.h // 2
 
   def is_anchored(self):
-    up: Cell = self.grid.up_from(self)
-    down: Cell = self.grid.down_from(self)
-    left: Cell = self.grid.left_from(self)
-    right: Cell = self.grid.right_from(self)
+    up: Optional[Cell] = self.grid.up_from(self)
+    down: Optional[Cell] = self.grid.down_from(self)
+    left: Optional[Cell] = self.grid.left_from(self)
+    right: Optional[Cell] = self.grid.right_from(self)
     return (
-      (up and up.value)
-      or (down and down.value)
-      or (left and left.value)
-      or (right and right.value)
+      (up is not None and up.value is not None and not up.added)
+      or (down is not None and down.value is not None and not down.added)
+      or (left is not None and left.value is not None and not left.added)
+      or (right is not None and right.value is not None and not right.added)
     )
 
 
 class Grid(GridDef):
-  def __init__(self):
+  def __init__(self, init=True):
     GridDef.__init__(self, GWIDTH, GHEIGHT)
-    self.size = self.w * self.h
-    self.cells: List[Cell] = []
-    for i in range(self.size):
-      pos: CPos = CPos(self, i)
-      isp = min(i, self.size - i - 1)
-      ctype = specials[isp] if isp in specials else BLANK
-      self.cells.append(Cell(self, pos, ctype))
+    if init:
+      self.size = self.w * self.h
+      self.cells: List[Cell] = []
+      for i in range(self.size):
+        pos: CPos = CPos(self, i)
+        isp = min(i, self.size - i - 1)
+        ctype = MULT_SQUARES[isp] if isp in MULT_SQUARES else BLANK
+        self.cells.append(Cell(self, pos, ctype))
+
+
+  def clone(self) -> Any:
+    newgrid: Grid = Grid(False)
+    newgrid.w = self.w
+    newgrid.h = self.h
+    newgrid.size = self.size
+    newgrid.cells = []
+    for cell in self.cells:
+      newgrid.cells.append(Cell(newgrid, cell.pos, cell.ctype, cell.value))
+    return newgrid
+
 
   def show(self) -> str:
-    showstr: str = ""
+    showstr: str = "   "
+    for i in range(self.w):
+      showstr += f" {i}".rjust(3, ' ')
+    showstr += "\n"
     for y in range(self.h):
+      showstr += f" {y}".rjust(3, ' ')
       for x in range(self.w):
         cell: Cell = self.at(x, y)
         if cell.value is not None:
-          esc: str = 32 if cell.added else 35
+          esc: int = 32 if cell.added else 35
           showstr += f" [1;{esc}m{cell.value}[m "
         else:
           showstr += f" {self.at(x, y).ctype}"
@@ -105,10 +120,24 @@ class Grid(GridDef):
 
     return showstr
 
+  def apply(self, word: str, startpos: CPos, dirn: Dir) -> None:
+    pos: CPos = startpos
+    for i in range(len(word)):
+      cell: Cell = self.cells[pos.i] 
+      if cell.value is None:
+        cell.value = word[i]
+        cell.added = True
+      elif cell.value != word[i]:
+        raise Exception(
+          f"failure applying word {word}: found existing letter {cell.value} "
+          f"at ({pos.x},{pos.y}) instead of {word[i]}"
+        )
+      pos = pos.traverse(1, dirn)
+
   def at(self, x: int, y: int) -> Cell:
     return self.cells[self.w * y + x]
 
-  def next_cell(self, cell: Cell, dirn: Dir) -> Cell:
+  def next_cell(self, cell: Cell, dirn: Dir) -> Optional[Cell]:
     match dirn:
       case Dir.UP:
         return self.up_from(cell)
@@ -121,37 +150,39 @@ class Grid(GridDef):
     raise Exception(f"unrecognized direction: {dirn}")
         
 
-  def left_from(self, cell: Cell) -> Cell:
+  def left_from(self, cell: Cell) -> Optional[Cell]:
     return self.cells[cell.pos.i - 1] if cell.pos.x > 0 else None
 
-  def right_from(self, cell: Cell) -> Cell:
+  def right_from(self, cell: Cell) -> Optional[Cell]:
     return self.cells[cell.pos.i + 1] if cell.pos.x < self.w - 1 else None
 
-  def up_from(self, cell: Cell) -> Cell:
+  def up_from(self, cell: Cell) -> Optional[Cell]:
     return self.cells[cell.pos.i - self.w] if cell.pos.y > 0 else None
 
-  def down_from(self, cell: Cell) -> Cell:
+  def down_from(self, cell: Cell) -> Optional[Cell]:
     return self.cells[cell.pos.i + self.w] if cell.pos.y < self.h - 1 else None
 
-  def upstr(self, cell: Cell) -> Tuple[str, Cell]:
-    return self.string(cell, Dir.UP)
+  def upstr(self, cell: Cell) -> Tuple[str, Optional[Cell]]:
+    strpath, start = self.string(cell, Dir.UP)
+    return strpath[::-1], start
 
-  def downstr(self, cell: Cell) -> Tuple[str, Cell]:
+  def downstr(self, cell: Cell) -> Tuple[str, Optional[Cell]]:
     return self.string(cell, Dir.DOWN)
 
-  def leftstr(self, cell: Cell) -> Tuple[str, Cell]:
-    return self.string(cell, Dir.LEFT)
+  def leftstr(self, cell: Cell) -> Tuple[str, Optional[Cell]]:
+    strpath, start = self.string(cell, Dir.LEFT)
+    return strpath[::-1], start
 
-  def rightstr(self, cell: Cell) -> Tuple[str, Cell]:
+  def rightstr(self, cell: Cell) -> Tuple[str, Optional[Cell]]:
     return self.string(cell, Dir.RIGHT)
 
   # string of letters starting from but not including
   # the passed-in cell in direction dirn, up to a blank
   # cell or the end of the board
-  def string(self, cell: Cell, dirn: Dir) -> Tuple[str, Cell]:
+  def string(self, cell: Cell, dirn: Dir) -> Tuple[str, Optional[Cell]]:
     string: str = ""
-    end: Cell = None
-    nxt: Cell = self.next_cell(cell, dirn)
+    end: Optional[Cell] = None
+    nxt: Optional[Cell] = self.next_cell(cell, dirn)
     while (nxt is not None and nxt.value is not None):
       string += nxt.value
       end = nxt
@@ -159,6 +190,18 @@ class Grid(GridDef):
 
     return string, end
 
+
+def grid_from_file(fname: str) -> Grid:
+  grid: Grid = Grid()
+  with open(fname, "r") as file:
+    line: int = 0
+    while line < grid.h:
+      row: List[str] = file.readline().strip().split()
+      for i, s in enumerate(row):
+        if s != "-":
+          grid.at(i, line).value = s
+      line += 1
+  return grid
 
 
 def grid_copy(oldgrid: Grid) -> Grid:
@@ -172,7 +215,7 @@ def grid_copy(oldgrid: Grid) -> Grid:
   return newgrid
 
 
-def grid_add_letter(grid: Grid, pos: CPos, letter: chr) -> None:
+def grid_add_letter(grid: Grid, pos: CPos, letter: str) -> None:
   grid.cells[pos.i].value = letter
   grid.cells[pos.i].added = True
 

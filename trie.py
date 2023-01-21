@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 
 class TrieNode:
-  def __init__(self, ch: chr, isword: bool = False):
-    self.ch: chr = ch
+  def __init__(self, ch: str, isword: bool = False):
+    self.ch: str = ch
     self.children: List[TrieNode] = []
     self.isword: bool = isword
 
@@ -38,7 +38,7 @@ class TrieNode:
     self.children.append(child)
     return child
 
-  def isprefix(self, word) -> Optional:
+  def isprefix(self, word) -> Optional[Any]:
     node = self
     for ch in word:
       if not node.children:
