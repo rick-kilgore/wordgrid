@@ -8,11 +8,15 @@ import time
 from typing import Dict, List
 
 import test
-from trie import Trie, TrieNode
+from consts import (
+  GWIDTH, GHEIGHT, MULT_SQUARES,
+  SOLO_WIDTH, SOLO_HEIGHT, SOLO_SQUARES, SOLO2_SQUARES,
+)
 from grid import Cell, Dir, Grid, grid_from_file
 from search import (
   SearchCriteria, FoundWord, findwords, addwords,
 )
+from trie import Trie, TrieNode
 
 
 last_time = -1.0
@@ -50,14 +54,25 @@ def load_trie() -> Trie:
 # main
 parser = argparse.ArgumentParser(description="Sync folders with Google Drive")
 parser.add_argument("-f", "--file", help="used named test data as input")
+parser.add_argument("-s", "--solo", action="store_true", help="use grid for solo matches")
+parser.add_argument("-2", "--solo2", action="store_true", help="use solo2 grid")
 parser.add_argument("-t", "--test", help="used named test data as input")
 parser.add_argument("-p", "--pos", nargs=2, metavar="n", help="look for words starting at x y pos")
 parser.add_argument("letters", default="", help="letters from which to build words")
 args = parser.parse_args()
 
 grid: Grid
+width: int = SOLO_WIDTH if args.solo or args.solo2 else GWIDTH
+height: int = SOLO_HEIGHT if args.solo or args.solo2 else GHEIGHT
+msquares: List[Dict[int, str]]
+if args.solo:
+  msquares = SOLO_SQUARES
+elif args.solo2:
+  msquares = SOLO2_SQUARES
+else:
+  msquares = MULT_SQUARES
 if args.file:
-  grid = grid_from_file(args.file)
+  grid = grid_from_file(args.file, width, height, msquares)
 elif args.test:
   grid = test.test_grid_by_name(args.test)
 
@@ -67,9 +82,15 @@ print(grid.show())
 trie: Trie = load_trie()
 words: Dict[str, FoundWord]
 if args.pos:
-  x, y = args.pos
+  x = int(args.pos[0])
+  y = int(args.pos[1])
+  print(f"searching from ({x},{y}) w={width} h={height} letters={args.letters}", flush=True)
+  print("searching right...", flush=True)
   srch: SearchCriteria = SearchCriteria(grid, grid.at(x, y), Dir.RIGHT, args.letters, trie)
   words = findwords(srch)
+  print("searching down...", flush=True)
+  srch = SearchCriteria(grid, grid.at(x, y), Dir.DOWN, args.letters, trie)
+  addwords(words, findwords(srch))
 
 else:
   words = {}

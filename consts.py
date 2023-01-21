@@ -13,17 +13,37 @@ GWIDTH: int = 15
 GHEIGHT: int = 15
 
 
-MULT_SQUARES: Dict[int, str] = {
-  3: TW, 6: TL, 8: TL, 11: TW,
-  17: DL, 20: DW, 24: DW, 27: DL,
-  31: DL, 34: DL, 40: DL, 43: DL,
-  45: TW, 48: TL, 52: DW, 56: TL, 59: TW,
-  62: DL, 66: DL, 68: DL, 72: DL,
-  76: DW, 80: TL, 84: TL, 88: DW,
-  90: TL, 94: DL, 100: DL, 104: TL,
-  108: DW, 116: DW,
-}
+MULT_SQUARES: Dict[int, str] = [
+  { 3: TW, 6: TL, 8: TL, 11: TW, },
+  { 2: DL, 5: DW, 9: DW, 12: DL, },
+  { 1: DL, 4: DL, 10: DL, 13: DL, },
+  { 0: TW, 3: TL, 7: DW, 11: TL, 14: TW, },
+  { 2: DL, 6: DL, 8: DL, 12: DL, },
+  { 1: DW, 5: TL, 9: TL, 13: DW, },
+  { 0: TL, 4: DL, 10: DL, 14: TL, },
+  { 3: DW, 11: DW, },
+]
 
+
+SOLO_WIDTH: int = 11
+SOLO_HEIGHT: int = 11
+SOLO_SQUARES: Dict[int, str] = [
+  { 0: TL, 2: TW, 8: TW, 10: TL, },
+  { 1: DW, 5: DW, 9: DW, },
+  { 0: TW, 2: DL, 4: DL, 6: DL, 8: DL, 10: TW, },
+  { 3: TL, 7: TL, },
+  { 2: DL, 8: DL, },
+  { 1: DW, 63: DW, },
+]
+
+SOLO2_SQUARES: Dict[int, str] = [
+  { 0: TW, 3: DL, 4: TL, 7: DL, 8: TW, },
+  { 0: DL, 1: DW, 4: DL, 5: DL, 8: DL, 9: DW, },
+  { 1: DL, 2: TW, 5: DL, 6: TL, 9: DL, 10: TW, },
+  { 2: DL, 3: DW, 6: DL, 7: DW, 10: DL, },
+  { 0: DL, 3: DL, 4: DL, 7: DL, 8: DL, },
+  { 0: TL, 1: DL, 4: DL, },
+]
 
 class Dir(Enum):
   UP = 1

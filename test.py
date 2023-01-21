@@ -1,11 +1,12 @@
 
+from consts import GWIDTH, GHEIGHT, MULT_SQUARES
 from grid import Grid
 from typing import Tuple
 
 def test_grid_by_name(name: str) -> Grid:
   match name:
     case "simple":
-      grid: Grid = Grid()
+      grid: Grid = Grid(GWIDTH, GHEIGHT, MULT_SQUARES)
       grid.at(9, 5).value = 'c'
       grid.at(10, 5).value = 'o'
       grid.at(11, 5).value = 'u'

@@ -2,14 +2,14 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import consts
 from consts import (
-  BLANK, GWIDTH, GHEIGHT,
-  Dir, opposite, MULT_SQUARES,
+  BLANK, Dir, opposite,
 )
 
 class GridDef:
-  def __init__(self, w: int, h: int):
+  def __init__(self, w: int, h: int, mult_squares: Dict[int, str]):
     self.w = w
     self.h = h
+    self.mult_squares = mult_squares
 
 
 class CPos:
@@ -79,22 +79,22 @@ class Cell:
 
 
 class Grid(GridDef):
-  def __init__(self, init=True):
-    GridDef.__init__(self, GWIDTH, GHEIGHT)
+  def __init__(self, width: int, height: int, mult_squares: List[Dict[int, str]], init=True):
+    GridDef.__init__(self, width, height, mult_squares)
     if init:
       self.size = self.w * self.h
       self.cells: List[Cell] = []
-      for i in range(self.size):
-        pos: CPos = CPos(self, i)
-        isp = min(i, self.size - i - 1)
-        ctype = MULT_SQUARES[isp] if isp in MULT_SQUARES else BLANK
-        self.cells.append(Cell(self, pos, ctype))
+      for nrow in range(self.h):
+        srcrow: int = self.h - 1 - nrow if nrow >= len(mult_squares) else nrow
+        row: Dict[int, str] = mult_squares[srcrow]
+        for ncol in range(self.w):
+          pos: CPos = CPos(self, nrow * self.w + ncol)
+          ctype = row[ncol] if ncol in row else BLANK
+          self.cells.append(Cell(self, pos, ctype))
 
 
   def clone(self) -> Any:
-    newgrid: Grid = Grid(False)
-    newgrid.w = self.w
-    newgrid.h = self.h
+    newgrid: Grid = Grid(self.w, self.h, self.mult_squares, False)
     newgrid.size = self.size
     newgrid.cells = []
     for cell in self.cells:
@@ -105,10 +105,10 @@ class Grid(GridDef):
   def show(self) -> str:
     showstr: str = "   "
     for i in range(self.w):
-      showstr += f" {i}".rjust(3, ' ')
+      showstr += f"{i} ".rjust(3, ' ')
     showstr += "\n"
     for y in range(self.h):
-      showstr += f" {y}".rjust(3, ' ')
+      showstr += f"{y} ".rjust(3, ' ')
       for x in range(self.w):
         cell: Cell = self.at(x, y)
         if cell.value is not None:
@@ -191,8 +191,8 @@ class Grid(GridDef):
     return string, end
 
 
-def grid_from_file(fname: str) -> Grid:
-  grid: Grid = Grid()
+def grid_from_file(fname: str, w: int, h: int, mult_squares: Dict[int, str]) -> Grid:
+  grid: Grid = Grid(w, h, mult_squares)
   with open(fname, "r") as file:
     line: int = 0
     while line < grid.h:
@@ -206,7 +206,7 @@ def grid_from_file(fname: str) -> Grid:
 
 def grid_copy(oldgrid: Grid) -> Grid:
   # fixme: need to not initialize the cells array every time
-  newgrid = Grid()
+  newgrid = Grid(oldgrid.w, oldgrid.h, oldgrid.mult_squares)
   for i, c in enumerate(oldgrid.cells):
     newcell = Cell(newgrid, c.pos, c.ctype)
     newcell.value = c.value
