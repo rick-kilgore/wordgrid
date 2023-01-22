@@ -4,7 +4,7 @@ from typing import Dict, Optional, Tuple
 
 from consts import LETTERS
 from grid import (
-  Cell, CPos, Dir, Grid, grid_copy, opposite,
+  Cell, CPos, Dir, Grid, opposite,
 )
 from trie import Trie, TrieNode
 
@@ -77,7 +77,6 @@ def add_existing(ctx: SearchContext, cell: Cell) -> Tuple[SearchContext, Optiona
 
 def next_context(ctx: SearchContext, nxt_cell: Optional[Cell], sofar: str, letters: str) -> SearchContext:
   nxt_ctx = clone_context(ctx)
-  nxt_ctx.grid = grid_copy(ctx.grid)
   nxt_ctx.sofar = sofar
   nxt_ctx.letters = letters
   nxt_ctx.is_anchored = ctx.is_anchored or (nxt_cell is not None and nxt_cell.is_anchored())

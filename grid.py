@@ -98,7 +98,9 @@ class Grid(GridDef):
     newgrid.size = self.size
     newgrid.cells = []
     for cell in self.cells:
-      newgrid.cells.append(Cell(newgrid, cell.pos, cell.ctype, cell.value))
+      newcell: Cell = Cell(newgrid, cell.pos, cell.ctype, cell.value)
+      newcell.added = cell.added
+      newgrid.cells.append(newcell)
     return newgrid
 
 
@@ -202,17 +204,6 @@ def grid_from_file(fname: str, w: int, h: int, mult_squares: Dict[int, str]) -> 
           grid.at(i, line).value = s
       line += 1
   return grid
-
-
-def grid_copy(oldgrid: Grid) -> Grid:
-  # fixme: need to not initialize the cells array every time
-  newgrid = Grid(oldgrid.w, oldgrid.h, oldgrid.mult_squares)
-  for i, c in enumerate(oldgrid.cells):
-    newcell = Cell(newgrid, c.pos, c.ctype)
-    newcell.value = c.value
-    newcell.added = c.added
-    newgrid.cells[i] = newcell
-  return newgrid
 
 
 def grid_add_letter(grid: Grid, pos: CPos, letter: str) -> None:
