@@ -91,9 +91,11 @@ def findwords(srch: SearchCriteria) -> Dict[str, int]:
           f"({srch.start_cell.pos.x},{srch.start_cell.pos.y})={srch.start_cell.value}")
     return {}
 
-  is_anchored: bool = srch.start_cell.is_middle_cell()
+  is_anchored: bool = srch.start_cell.is_middle_cell() or srch.start_cell.is_anchored()
   ctx: SearchContext = SearchContext(srch, is_anchored)
   strpath, _ = srch.grid.string(srch.start_cell, opposite(srch.dirn))
+  for ch in strpath:
+    ctx.score += LETTERS[ch.lower()]
   ctx.sofar = strpath[::-1]
   return search(ctx, srch.start_cell, 0)
 
@@ -122,7 +124,6 @@ def search(ctx: SearchContext, cell: Optional[Cell], depth: int) -> Dict[str, in
 
           crosscheck, scoreadd = check_cross_direction(ctx, cell, ltr, ch)
           nxt_ctx.scoreadd += scoreadd
-          # print(f"cross direction check for {ctx.sofar} + {ch} = {crosscheck}", flush=True)
 
           # fixme: probably should keep TrieNode so this check is O(1)
           tnode: Optional[TrieNode] = ctx.srch.trie.isprefix(nxt_ctx.sofar)
@@ -174,7 +175,8 @@ def check_cross_direction(ctx: SearchContext, cell: Cell, ltr: str, ch: str) -> 
 def addword(ctx: SearchContext, cell: Cell, words: Dict[str, FoundWord]) -> None:
   score: int = ctx.score * ctx.scoremult + ctx.scoreadd
   pos: CPos = cell.pos.traverse(len(ctx.sofar) - 1, opposite(ctx.srch.dirn))
-  words[ctx.sofar] = FoundWord(ctx.sofar, score, pos, ctx.srch.dirn)
+  if ctx.sofar not in words or words[ctx.sofar].score < score:
+    words[ctx.sofar] = FoundWord(ctx.sofar, score, pos, ctx.srch.dirn)
   print(f"{words[ctx.sofar]} at ({pos.x},{pos.y})", flush=True)
   # print(ctx.grid.show() + "\n", flush=True)
   

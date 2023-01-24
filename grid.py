@@ -19,6 +19,9 @@ class CPos:
     self.x = i % grid.w
     self.y = i // grid.w
 
+  def __str__(self) -> str:
+    return f"({self.x},{self.y})"
+
 
   # WARNING: this method assumes the caller knows
   # what they are doing in that the requested
@@ -43,6 +46,13 @@ class Cell:
     self.ctype: str = ctype
     self.value: Optional[str] = value
     self.added: bool = False
+
+  def __str__(self) -> str:
+    val: str = (
+      self.value if self.value is not None
+      else self.ctype if self.ctype != BLANK else "''"
+    )
+    return f"{self.pos}={val}"
 
   def letter_mult(self) -> int:
     match self.ctype:
@@ -198,7 +208,7 @@ def grid_from_file(fname: str, w: int, h: int, mult_squares: Dict[int, str]) -> 
   with open(fname, "r") as file:
     line: int = 0
     while line < grid.h:
-      row: List[str] = file.readline().strip().split()
+      row: str = file.readline().strip()
       for i, s in enumerate(row):
         if s != "-":
           grid.at(i, line).value = s
