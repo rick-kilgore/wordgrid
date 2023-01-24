@@ -45,6 +45,20 @@ SOLO2_SQUARES: Dict[int, str] = [
   { 0: TL, 1: DL, 4: DL, },
 ]
 
+SOLO3_SQUARES: Dict[int, str] = [
+  { 0: TW, 4: DL, 5: DL, 6: DL, 10: TW, },
+  { 1: DW, 3: DL, 4: DL, 5: DL, 6: DL, 7: DL, 9: DW, },
+  { 2: DL, 3: DL, 7: DL, 8: DL, },
+  { 0: TL, 2: DL, 8: DL, 10: TL, },
+  { 1: TL, 2: DL, 4: DL, 6: DL, 8: DL, 9: TL, },
+  { 2: DL, 8: DL, },
+  { 1: TL, 3: DL, 7: DL, 9: TL, },
+  { 0: TL, 4: DL, 5: DL, 6: DL, 10: TL, },
+  { 2: DW, 4: DL, 6: DL, 9: DW, },
+  { 1: TL, 4: DL, 6: DL, 9: TL, },
+  { 0: TW, 5: TL, 10: TW, },
+]
+
 class Dir(Enum):
   UP = 1
   RIGHT = 2

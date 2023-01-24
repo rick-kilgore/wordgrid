@@ -210,7 +210,7 @@ def grid_from_file(fname: str, w: int, h: int, mult_squares: Dict[int, str]) -> 
     while line < grid.h:
       row: str = file.readline().strip()
       for i, s in enumerate(row):
-        if s != "-":
+        if s != "-" and s != " ":
           grid.at(i, line).value = s
       line += 1
   return grid
