@@ -185,3 +185,27 @@ def addwords(dest: Dict[str, FoundWord], src: Dict[str, FoundWord]) -> None:
   for k in src:
     if k not in dest or src[k].score > dest[k].score:
       dest[k] = src[k]
+
+def search_from_single_pos(grid: Grid, trie: Trie, letters: str, startx: int, starty: int) -> Dict[str, FoundWord]:
+  print(f"searching from ({startx},{starty})", flush=True)
+  words: Dict[str, FoundWord] = {}
+  if startx < grid.w - 1:
+    # print("searching right...", flush=True)
+    srch = SearchCriteria(grid, grid.at(startx, starty), Dir.RIGHT, letters, trie)
+    words = findwords(srch)
+  if starty < grid.h - 1:
+    # print("searching down...", flush=True)
+    srch = SearchCriteria(grid, grid.at(startx, starty), Dir.DOWN, letters, trie)
+    addwords(words, findwords(srch))
+  return words
+
+
+def search_whole_board(grid: Grid, trie: Trie, letters: str) -> Dict[str, FoundWord]:
+  words: Dict[str, FoundWord] = {}
+  for y in range(grid.h):
+    for x in range (grid.w):
+      cell: Cell = grid.at(x, y)
+      if cell.value is None:
+        addwords(words, search_from_single_pos(grid, trie, letters, x, y))
+
+  return words
