@@ -8,10 +8,7 @@ import time
 from typing import Dict, List
 
 import test
-from consts import (
-  GWIDTH, GHEIGHT, MULT_SQUARES,
-  SOLO_WIDTH, SOLO_HEIGHT, SOLO_SQUARES, SOLO2_SQUARES, SOLO3_SQUARES,
-)
+from consts import get_board_data
 from grid import Cell, Dir, Grid, grid_from_file
 from search import (
   SearchCriteria, FoundWord, findwords, addwords,
@@ -54,28 +51,20 @@ def load_trie() -> Trie:
 # main
 parser = argparse.ArgumentParser(description="Sync folders with Google Drive")
 parser.add_argument("-f", "--file", help="used named test data as input")
-parser.add_argument("-s", "--solo", action="store_true", help="use grid for solo matches")
-parser.add_argument("-2", "--solo2", action="store_true", help="use solo2 grid")
-parser.add_argument("-3", "--solo3", action="store_true", help="use solo3 grid")
+parser.add_argument("-b", "--board", default=0, type=int, metavar="VERSION", help="use one of the solo match grids")
 parser.add_argument("-t", "--test", help="used named test data as input")
-parser.add_argument("-p", "--pos", nargs=2, metavar="n", help="look for words starting at x y pos")
+parser.add_argument("-p", "--pos", nargs=2, metavar="N", help="look for words starting at x y pos")
 parser.add_argument("letters", default="", help="letters from which to build words")
 args = parser.parse_args()
 
 grid: Grid
-width: int = SOLO_WIDTH if args.solo or args.solo2 or args.solo3 else GWIDTH
-height: int = SOLO_HEIGHT if args.solo or args.solo2 or args.solo3 else GHEIGHT
-msquares: List[Dict[int, str]]
-if args.solo:
-  msquares = SOLO_SQUARES
-elif args.solo2:
-  msquares = SOLO2_SQUARES
-elif args.solo3:
-  msquares = SOLO3_SQUARES
-else:
-  msquares = MULT_SQUARES
+width: int
+height: int
+bspec: List[Dict[int, str]]
+width, height, bspec = get_board_data(args.board)
+
 if args.file:
-  grid = grid_from_file(args.file, width, height, msquares)
+  grid = grid_from_file(args.file, width, height, bspec)
 elif args.test:
   grid = test.test_grid_by_name(args.test)
 

@@ -1,12 +1,13 @@
 
-from consts import GWIDTH, GHEIGHT, MULT_SQUARES
+from consts import get_board_data
 from grid import Grid
 from typing import Tuple
 
 def test_grid_by_name(name: str) -> Grid:
   match name:
     case "simple":
-      grid: Grid = Grid(GWIDTH, GHEIGHT, MULT_SQUARES)
+      width, height, bspec = get_board_data(0)
+      grid: Grid = Grid(width, height, bspec)
       grid.at(9, 5).value = 'c'
       grid.at(10, 5).value = 'o'
       grid.at(11, 5).value = 'u'
