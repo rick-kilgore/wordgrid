@@ -132,7 +132,7 @@ class Grid(GridDef):
 
     return showstr
 
-  def apply(self, word: str, startpos: CPos, dirn: Dir) -> None:
+  def apply(self, word: str, startpos: CPos, dirn: Dir) -> Any:
     pos: CPos = startpos
     for i in range(len(word)):
       cell: Cell = self.cells[pos.i] 
@@ -145,6 +145,7 @@ class Grid(GridDef):
           f"at ({pos.x},{pos.y}) instead of {word[i]}"
         )
       pos = pos.traverse(1, dirn)
+    return self
 
   def at(self, x: int, y: int) -> Cell:
     return self.cells[self.w * y + x]

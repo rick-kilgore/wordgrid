@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-import argparse
+import functions_framework
+from flask import Request
+
+import json
 import os
 import pickle
 import sys
@@ -13,7 +16,7 @@ from grid import Cell, Dir, Grid, grid_from_file
 from search import (
   SearchCriteria, FoundWord, findwords, addwords,
 )
-from trie import Trie, TrieNode
+from trie import Trie
 
 
 last_time = -1.0
@@ -74,7 +77,7 @@ def run_for_single_pos(grid: Grid, trie: Trie, letters: str, startx: int, starty
   return words
 
 
-def run_whole_board(grid: Grid, trie: Trie, file: str, letters: str) -> Dict[str, FoundWord]:
+def run_whole_board(grid: Grid, trie: Trie, letters: str) -> Dict[str, FoundWord]:
   words: Dict[str, FoundWord] = {}
   for y in range(grid.h):
     for x in range (grid.w):
@@ -85,33 +88,21 @@ def run_whole_board(grid: Grid, trie: Trie, file: str, letters: str) -> Dict[str
   return words
 
 
-# main
-parser = argparse.ArgumentParser(description="Sync folders with Google Drive")
-parser.add_argument("-f", "--file", help="used named test data as input")
-parser.add_argument("-b", "--board", default=0, type=int, metavar="VERSION", help="use one of the solo match grids")
-parser.add_argument("-t", "--test", help="used named test data as input")
-parser.add_argument("-p", "--pos", nargs=2, type=int, metavar="N", help="look for words starting at x y pos")
-parser.add_argument("letters", default="", help="letters from which to build words")
-args = parser.parse_args()
-
-grid: Grid = load_board(args.board, args.file)
-trie: Trie = load_trie()
-words: Dict[str, FoundWord]
-if args.pos:
-  words = run_for_single_pos(grid, trie, args.letters, args.pos[0], args.pos[1])
-else:
-  words = run_whole_board(grid, trie, args.file, args.letters)
-
-
-srtd: List[str] = sorted(words.keys(), key=lambda w: words[w].score)
-full: str = "\n  ".join([str(words[w]) for w in srtd])
-print(f"found:\n{full}")
-
-print(f"\ntop 10 are:")
-for w in srtd[-10:]:
-  gcl: Grid = grid.clone()
-  fw: FoundWord = words[w]
-  print(f"  {fw}\n")
-  gcl.apply(fw.word, fw.pos, fw.dirn)
-  print(gcl.show(), "\n")
+@functions_framework.http
+def http(req: Request) -> str:
+  print(f"req.data: {type(req.data)}: {req.data}")
+  data = json.loads(req.data)
+  print(f"data: {type(data)}: {data}")
+  grid: Grid = load_board(data["board"], data["file"])
+  trie: Trie = load_trie()
+  # return str(run_for_single_pos(grid, trie, data["letters"], data["x"], data["y"]))
+  words: Dict[str, FoundWord] = run_whole_board(grid, trie, data["letters"])
+  srtd: List[str] = sorted(words.keys(), key=lambda w: words[w].score)
+  rsp: str = ""
+  for w in srtd:
+    rsp += str(words[w]) + "\n"
+  for w in srtd[-5:]:
+    rsp += w + "\n"
+    rsp += grid.clone().apply(w, words[w].pos, words[w].dirn).show() + "\n"
+  return rsp
 
