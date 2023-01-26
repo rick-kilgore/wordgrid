@@ -43,14 +43,15 @@ def load_trie() -> Trie:
 
 def display_results(grid: Grid, words: Dict[str, FoundWord], details_count: int = 10) -> str:
   srtd: List[str] = sorted(words.keys(), key=lambda w: words[w].score)
-  disp_str = "found:\n  " + "\n  ".join([str(words[w]) for w in srtd])
+  disp_str = "found:\n  " + "\n  ".join([str(words[w]) for w in srtd]) + "\n"
 
-  disp_str += f"\n\n\ntop {details_count} are:\n\n"
-  for i, w in enumerate(srtd[-details_count:]):
-    gcl: Grid = grid.clone()
-    fw: FoundWord = words[w]
-    disp_str += f"{details_count - i:02}: {fw}\n"
-    gcl.apply(fw.word, fw.pos, fw.dirn)
-    disp_str += gcl.show() + "\n"
+  if details_count > 0:
+    disp_str += f"\n\ntop {details_count} are:\n\n"
+    for i, w in enumerate(srtd[-details_count:]):
+      gcl: Grid = grid.clone()
+      fw: FoundWord = words[w]
+      disp_str += f"{details_count - i:02}: {fw}\n"
+      gcl.apply(fw.word, fw.pos, fw.dirn)
+      disp_str += gcl.show() + "\n"
 
   return disp_str

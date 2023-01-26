@@ -1,10 +1,8 @@
-#!/usr/bin/python3
-
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from consts import LETTERS
 from grid import (
-  Cell, CPos, Dir, Grid, opposite,
+  Cell, CPos, Dir, Grid, GridDef, opposite,
 )
 from trie import Trie, TrieNode
 
@@ -53,7 +51,7 @@ class FoundWord:
     self.dirn = dirn
 
   def __str__(self) -> str:
-    return f"{self.word} at ({self.pos.x},{self.pos.y}) dirn={self.dirn} score={self.score}"
+    return f"{self.score}: {self.word} {self.dirn.name} from {self.pos}"
 
   def __repr__(self) -> str:
     return str(self)
@@ -206,6 +204,16 @@ def search_from_single_pos(
   if starty < grid.h - 1:
     srch = SearchCriteria(grid, grid.at(startx, starty), Dir.DOWN, letters, trie, verbose)
     addwords(words, findwords(srch))
+  return words
+
+
+def search_from_row(grid: Grid, trie: Trie, letters: str, nrow: int, verbose: bool = False) -> Dict[str, FoundWord]:
+  words: Dict[str, FoundWord] = {}
+  for x in range (grid.w):
+    cell: Cell = grid.at(x, nrow)
+    if cell.value is None:
+      addwords(words, search_from_single_pos(grid, trie, letters, x, nrow, verbose))
+
   return words
 
 
