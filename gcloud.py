@@ -13,7 +13,9 @@ from utils import display_results, load_board, load_trie
 def http(req: Request) -> str:
   data = json.loads(req.data)
   print(f"request: {data}")
-  grid: Grid = load_board(data["board"], data["file"])
+  grid: Grid
+  if "board" in data:
+    grid = Grid.deserialize(data["board"])
   trie: Trie = load_trie()
   words: Dict[str, FoundWord]
   if "x" in data and "y" in data:

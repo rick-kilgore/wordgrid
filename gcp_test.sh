@@ -9,6 +9,6 @@ fi
 
 curl -s -H 'Content-Type: application/json' \
   -H "Authorization: bearer $(gcloud auth print-identity-token)" \
-  -d '{ "board": 0, "file": "games/test.data", "letters": "mjowcyl", "details": '$num', "verbose": true }' \
+  -d '{ "board": "'"$(g2string.py -f games/test.data)"'", "letters": "mjowcyl", "details": '$num' }' \
   https://wordgrid-or5twhev4a-uw.a.run.app
 

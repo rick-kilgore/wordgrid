@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 
+import pdb
 import consts
 from consts import (
   BLANK, Dir, opposite,
@@ -9,6 +10,7 @@ class GridDef:
   def __init__(self, w: int, h: int, mult_squares: Dict[int, str]):
     self.w = w
     self.h = h
+    self.size = self.w * self.h
     self.mult_squares = mult_squares
 
 
@@ -92,7 +94,6 @@ class Grid(GridDef):
   def __init__(self, width: int, height: int, mult_squares: List[Dict[int, str]], init=True):
     GridDef.__init__(self, width, height, mult_squares)
     if init:
-      self.size = self.w * self.h
       self.cells: List[Cell] = []
       for nrow in range(self.h):
         srcrow: int = self.h - 1 - nrow if nrow >= len(mult_squares) else nrow
@@ -101,6 +102,50 @@ class Grid(GridDef):
           pos: CPos = CPos(self, nrow * self.w + ncol)
           ctype = row[ncol] if ncol in row else BLANK
           self.cells.append(Cell(self, pos, ctype))
+
+
+  def serialize(self) -> str:
+    string: str = f"{self.w}:{self.h}:"
+    for cell in self.cells:
+      if cell.value is not None:
+        string += cell.value
+      else:
+        match cell.ctype:
+          case consts.BLANK:
+            string += " "
+          case consts.DL:
+            string += "-"
+          case consts.TL:
+            string += "_"
+          case consts.DW:
+            string += "="
+          case consts.TW:
+            string += "+"
+    return string
+
+
+  @classmethod
+  def deserialize(cls, string: str) -> Any: # Grid
+    sw, sh, data = string.split(':')
+    w, h = int(sw), int(sh)
+    grid: Grid = Grid(w, h, [], init=False)
+    grid.cells = []
+    for i, ch in enumerate(data):
+      pos = CPos(grid, i)
+      match ch:
+        case " ":
+          grid.cells.append(Cell(grid, pos, consts.BLANK))
+        case "-":
+          grid.cells.append(Cell(grid, pos, consts.DL))
+        case "_":
+          grid.cells.append(Cell(grid, pos, consts.TL))
+        case "=":
+          grid.cells.append(Cell(grid, pos, consts.DW))
+        case "+":
+          grid.cells.append(Cell(grid, pos, consts.TW))
+        case _:
+          grid.cells.append(Cell(grid, pos, consts.BLANK, ch))
+    return grid
 
 
   def clone(self) -> Any:

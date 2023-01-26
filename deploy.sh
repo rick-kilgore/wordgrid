@@ -3,7 +3,7 @@
 [ -f $HOME/.path.sh ] && . $HOME/.path.sh
 
 cp gcloud.py main.py
-zip -r wordgrid.zip games requirements.txt *.py wwf.txt words.pickle
+zip wordgrid.zip requirements.txt *.py wwf.txt words.pickle
 gcloud storage cp wordgrid.zip gs://wordgrid
 rm -f main.py wordgrid.zip
 gcloud functions deploy wordgrid --trigger-http --source gs://wordgrid/wordgrid.zip --entry-point http \
