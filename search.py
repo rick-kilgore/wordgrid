@@ -9,12 +9,17 @@ from grid import (
 from trie import Trie, TrieNode
 
 class SearchCriteria:
-  def __init__(self, grid: Grid, start: Cell, dirn: Dir, letters: str, trie: Trie):
+  def __init__(self, grid: Grid, start: Cell, dirn: Dir, letters: str, trie: Trie, verbose: bool = False):
     self.grid = grid
     self.start_cell = start
     self.dirn = dirn
     self.letters = letters
     self.trie = trie
+    self.verbose = verbose
+
+def log(srch: SearchCriteria, msg: str) -> None:
+  if srch.verbose:
+    print(msg, flush=True)
 
 class SearchContext:
   def __init__(self, srch: SearchCriteria, first_move: bool = False):
@@ -87,7 +92,7 @@ def is_word_boundary(cell: Optional[Cell]) -> bool:
 
 def findwords(srch: SearchCriteria) -> Dict[str, int]:
   if srch.start_cell.value is not None:
-    print("can't start a search from a cell that already has a value: "
+    log(srch, "can't start a search from a cell that already has a value: "
           f"({srch.start_cell.pos.x},{srch.start_cell.pos.y})={srch.start_cell.value}")
     return {}
 
@@ -120,7 +125,6 @@ def search(ctx: SearchContext, cell: Optional[Cell], depth: int) -> Dict[str, in
         chars: str = "abcdefghijklmnopqrstuvwxyz" if ltr == '.' else ltr
         for ch in chars:
           nxt_ctx, nxt_cell = add_letter(ctx, cell, ltr, ch, depth)
-          # print(f"{'  ' * depth}{ctx.sofar} -> {nxt_ctx.sofar}       ({nxt_ctx.letters})")
 
           crosscheck, scoreadd = check_cross_direction(ctx, cell, ltr, ch)
           nxt_ctx.scoreadd += scoreadd
@@ -177,35 +181,40 @@ def addword(ctx: SearchContext, cell: Cell, words: Dict[str, FoundWord]) -> None
   pos: CPos = cell.pos.traverse(len(ctx.sofar) - 1, opposite(ctx.srch.dirn))
   if ctx.sofar not in words or words[ctx.sofar].score < score:
     words[ctx.sofar] = FoundWord(ctx.sofar, score, pos, ctx.srch.dirn)
-  print(f"{words[ctx.sofar]} at ({pos.x},{pos.y})", flush=True)
-  # print(ctx.grid.show() + "\n", flush=True)
-  
+  log(ctx.srch, f"  {words[ctx.sofar]} at ({pos.x},{pos.y})")
+
 
 def addwords(dest: Dict[str, FoundWord], src: Dict[str, FoundWord]) -> None:
   for k in src:
     if k not in dest or src[k].score > dest[k].score:
       dest[k] = src[k]
 
-def search_from_single_pos(grid: Grid, trie: Trie, letters: str, startx: int, starty: int) -> Dict[str, FoundWord]:
-  print(f"searching from ({startx},{starty})", flush=True)
+def search_from_single_pos(
+    grid: Grid,
+    trie: Trie,
+    letters: str,
+    startx: int,
+    starty: int,
+    verbose: bool = False
+) -> Dict[str, FoundWord]:
+  if verbose:
+    print(f"searching from ({startx},{starty})", flush=True)
   words: Dict[str, FoundWord] = {}
   if startx < grid.w - 1:
-    # print("searching right...", flush=True)
-    srch = SearchCriteria(grid, grid.at(startx, starty), Dir.RIGHT, letters, trie)
+    srch = SearchCriteria(grid, grid.at(startx, starty), Dir.RIGHT, letters, trie, verbose)
     words = findwords(srch)
   if starty < grid.h - 1:
-    # print("searching down...", flush=True)
-    srch = SearchCriteria(grid, grid.at(startx, starty), Dir.DOWN, letters, trie)
+    srch = SearchCriteria(grid, grid.at(startx, starty), Dir.DOWN, letters, trie, verbose)
     addwords(words, findwords(srch))
   return words
 
 
-def search_whole_board(grid: Grid, trie: Trie, letters: str) -> Dict[str, FoundWord]:
+def search_whole_board(grid: Grid, trie: Trie, letters: str, verbose: bool = False) -> Dict[str, FoundWord]:
   words: Dict[str, FoundWord] = {}
   for y in range(grid.h):
     for x in range (grid.w):
       cell: Cell = grid.at(x, y)
       if cell.value is None:
-        addwords(words, search_from_single_pos(grid, trie, letters, x, y))
+        addwords(words, search_from_single_pos(grid, trie, letters, x, y, verbose))
 
   return words

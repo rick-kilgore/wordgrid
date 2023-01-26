@@ -13,15 +13,23 @@ parser.add_argument("-f", "--file", help="used named test data as input")
 parser.add_argument("-b", "--board", default=0, type=int, metavar="VERSION", help="use one of the solo match grids")
 parser.add_argument("-t", "--test", help="used named test data as input")
 parser.add_argument("-p", "--pos", nargs=2, type=int, metavar="N", help="look for words starting at x y pos")
+parser.add_argument("-d", "--details", type=int, default=10, metavar="NUM", help="number of details results to show")
+parser.add_argument("-v", "--verbose", action="store_true", help="print some debugging info on console")
 parser.add_argument("letters", default="", help="letters from which to build words")
 args = parser.parse_args()
 
+def log(msg: str):
+  if args.verbose:
+    print(msg, flush=True)
+
 grid: Grid = load_board(args.board, args.file)
+log(grid.show())
 trie: Trie = load_trie()
 words: Dict[str, FoundWord]
 if args.pos:
-  words = search_from_single_pos(grid, trie, args.letters, args.pos[0], args.pos[1])
+  words = search_from_single_pos(grid, trie, args.letters, args.pos[0], args.pos[1], args.verbose)
 else:
-  words = search_whole_board(grid, trie, args.letters)
+  words = search_whole_board(grid, trie, args.letters, args.verbose)
 
-display_results(grid, words, 20)
+print(display_results(grid, words, args.details))
+

@@ -1,2 +1,2 @@
 # wordgrid
-Scrabble board and word-finding app
+Scrabble board word-finding app

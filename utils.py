@@ -17,8 +17,6 @@ def load_board(board_num: int, file: str) -> Grid:
   width, height, bspec = get_board_data(board_num)
 
   grid = grid_from_file(file, width, height, bspec)
-  # grid = test.test_grid_by_name(test_name)
-  print(grid.show())
   return grid
 
 
@@ -43,15 +41,16 @@ def load_trie() -> Trie:
 
   return dictwords
 
-def display_results(grid: Grid, words: Dict[str, FoundWord], details_count: int = 10) -> None:
+def display_results(grid: Grid, words: Dict[str, FoundWord], details_count: int = 10) -> str:
   srtd: List[str] = sorted(words.keys(), key=lambda w: words[w].score)
-  full: str = "\n  ".join([str(words[w]) for w in srtd])
-  print(f"found:\n{full}")
+  disp_str = "found:\n  " + "\n  ".join([str(words[w]) for w in srtd])
 
-  print(f"\ntop {details_count} are:")
+  disp_str += f"\n\n\ntop {details_count} are:\n\n"
   for i, w in enumerate(srtd[-details_count:]):
     gcl: Grid = grid.clone()
     fw: FoundWord = words[w]
-    print(f"{details_count - i:02}: {fw}\n")
+    disp_str += f"{details_count - i:02}: {fw}\n"
     gcl.apply(fw.word, fw.pos, fw.dirn)
-    print(gcl.show(), "\n")
+    disp_str += gcl.show() + "\n"
+
+  return disp_str
