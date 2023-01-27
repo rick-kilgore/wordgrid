@@ -12,7 +12,7 @@ rows=(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
 
 for row in "${rows[@]}"; do
   curl -s -H "Content-Type: application/json" \
-    -d '{ "board": "'"$board"'", "letters": "mjowcyl", "details": 0, "row": '$row' }' \
+    -d '{ "board": "'"$board"'", "letters": "tasje..", "details": 0, "row": '$row' }' \
     http://localhost:8000/ > .row$row &
   echo "sent req $row"
 done

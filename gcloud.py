@@ -33,5 +33,6 @@ def http(req: Request) -> str:
     words = search_whole_board(grid, trie, data["letters"])
 
   num_details = int(data["details"]) if "details" in data else 5
-  rsp: str = display_results(grid, words, num_details)
+  bylen = True if "bylen" in data and data["bylen"] else False
+  rsp: str = display_results(grid, words, num_details, bylen)
   return rsp

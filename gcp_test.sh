@@ -10,7 +10,7 @@ fi
 board="$(g2string.py -f games/test.data)"
 rows=(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
 # letters="mjowcyl"
-letters="mj.wcy."
+letters="tasje.."
 
 # -d '{ "board": "'"$board"'", "letters": "'$letters'", "details": 0 }' \
 # -d '{ "board": "'"$board"'", "letters": "'$letters'", "details": 0, "row": '$row' }' \
@@ -18,15 +18,15 @@ letters="mj.wcy."
 
 row=0
 col=0
-#for row in "${rows[@]}"; do
+for row in "${rows[@]}"; do
   #for col in "${rows[@]}"; do
     curl -s -H 'Content-Type: application/json' \
       -H "Authorization: bearer $(gcloud auth print-identity-token)" \
-      -d '{ "board": "'"$board"'", "letters": "'$letters'", "details": 0 }' \
+      -d '{ "board": "'"$board"'", "letters": "'$letters'", "details": 0, "row": '$row' }' \
       https://wordgrid-or5twhev4a-uw.a.run.app > .part$row-$col &
     echo "sent req $row-$col"
   #done
-#done
+done
 
 wait
 cat .part* | sort -n | ./details.py -n $num "$board"

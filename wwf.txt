@@ -54970,6 +54970,7 @@ fez
 fezes
 fezzed
 fezzes
+fi
 fiacre
 fiacres
 fiance
@@ -135887,7 +135888,6 @@ seethe
 seethed
 seethes
 seething
-seg
 segetal
 seggar
 seggars
@@ -152512,6 +152512,7 @@ tazzas
 tazze
 tchotchke
 tchotchkes
+te
 tea
 teaberries
 teaberry

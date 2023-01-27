@@ -1,7 +1,7 @@
 
 import os
 import pickle
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from consts import get_board_data
 from grid import Grid, grid_from_file
@@ -41,8 +41,11 @@ def load_trie() -> Trie:
 
   return dictwords
 
-def display_results(grid: Grid, words: Dict[str, FoundWord], details_count: int = 10) -> str:
-  srtd: List[str] = sorted(words.keys(), key=lambda w: words[w].score)
+def display_results(grid: Grid, words: Dict[str, FoundWord], details_count: int, sortbylen: bool = False) -> str:
+  def keyfunc(w: str) -> Tuple[int, int]:
+    return (len(w), words[w].score) if sortbylen else (words[w].score, len(w))
+
+  srtd: List[str] = sorted(words.keys(), key=keyfunc)
   disp_str = "found:\n  " + "\n  ".join([str(words[w]) for w in srtd]) + "\n"
 
   if details_count > 0:

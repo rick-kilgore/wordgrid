@@ -14,6 +14,7 @@ parser.add_argument("-b", "--board", default=0, type=int, metavar="VERSION", hel
 parser.add_argument("-p", "--pos", nargs=2, type=int, metavar="N", help="look for words starting at x y pos")
 parser.add_argument("-r", "--row", type=int, metavar="N", help="look for words starting in row N")
 parser.add_argument("-d", "--details", type=int, default=10, metavar="NUM", help="number of details results to show")
+parser.add_argument("-l", "--len", action="store_true", help="sort by word length")
 parser.add_argument("-v", "--verbose", action="store_true", help="print some debugging info on console")
 parser.add_argument("letters", default="", help="letters from which to build words")
 args = parser.parse_args()
@@ -33,5 +34,5 @@ elif args.row:
 else:
   words = search_whole_board(grid, trie, args.letters, args.verbose)
 
-print(display_results(grid, words, args.details))
+print(display_results(grid, words, args.details, args.len))
 

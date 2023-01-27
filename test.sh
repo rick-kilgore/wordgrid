@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./main.py -f games/test.data -d 3 mjowcyl
+./wg.py -f games/test.data -d 3 tasje..
