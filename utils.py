@@ -20,10 +20,10 @@ def load_board(board_num: int, file: str) -> Grid:
   return grid
 
 
-def load_trie() -> Trie:
+def load_trie(use_pickle: bool = True) -> Trie:
   dictwords = Trie()
   pickle_filename = "words.pickle" 
-  if os.path.exists(pickle_filename):
+  if use_pickle and os.path.exists(pickle_filename):
     with open(pickle_filename, "rb") as picklefile:
       return pickle.load(picklefile)
 
@@ -35,11 +35,12 @@ def load_trie() -> Trie:
       if len(word) > 0:
         dictwords.insert(word)
 
-    print(f"writing dictionary to {pickle_filename}")
-    with open(pickle_filename, "wb") as picklefile:
-      pickle.dump(dictwords, picklefile)
+    if use_pickle:
+      with open(pickle_filename, "wb") as picklefile:
+        pickle.dump(dictwords, picklefile)
 
   return dictwords
+
 
 def display_results(grid: Grid, words: Dict[str, FoundWord], details_count: int, sortbylen: bool = False) -> str:
   def keyfunc(w: str) -> Tuple[int, int]:
