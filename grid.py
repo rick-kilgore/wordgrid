@@ -29,17 +29,17 @@ class CPos:
   # what they are doing in that the requested
   # traversal will not go off the board
   def traverse(self, ncells: int, dirn: Dir): # -> CPos
-    match dirn:
-      case Dir.UP:
-        return CPos(self.grid, self.i - (self.grid.w * ncells))
-      case Dir.DOWN:
-        return CPos(self.grid, self.i + (self.grid.w * ncells))
-      case Dir.LEFT:
-        return CPos(self.grid, self.i - ncells)
-      case Dir.RIGHT:
-        return CPos(self.grid, self.i + ncells)
-      case _:
-        raise Exception(f"unrecognized direction: {dirn}")
+    if dirn == Dir.UP:
+      return CPos(self.grid, self.i - (self.grid.w * ncells))
+    elif dirn == Dir.DOWN:
+      return CPos(self.grid, self.i + (self.grid.w * ncells))
+    elif dirn == Dir.LEFT:
+      return CPos(self.grid, self.i - ncells)
+    elif dirn == Dir.RIGHT:
+      return CPos(self.grid, self.i + ncells)
+    else:
+      raise Exception(f"unrecognized direction: {dirn}")
+
 
 class Cell:
   def __init__(self, grid, pos: CPos, ctype: str, value: Optional[str] = None):
@@ -57,22 +57,20 @@ class Cell:
     return f"{self.pos}={val}"
 
   def letter_mult(self) -> int:
-    match self.ctype:
-      case consts.DL:
-        return 2
-      case consts.TL:
-        return 3
-      case _:
-        return 1
+    if self.ctype == consts.DL:
+      return 2
+    elif self.ctype == consts.TL:
+      return 3
+    else:
+      return 1
 
   def word_mult(self) -> int:
-    match self.ctype:
-      case consts.DW:
-        return 2
-      case consts.TW:
-        return 3
-      case _:
-        return 1
+    if self.ctype == consts.DW:
+      return 2
+    elif self.ctype == consts.TW:
+      return 3
+    else:
+      return 1
 
   def is_middle_cell(self) -> bool:
     return self.pos.x == self.grid.w // 2 and self.pos.y == self.grid.h // 2
@@ -109,18 +107,16 @@ class Grid(GridDef):
     for cell in self.cells:
       if cell.value is not None:
         string += cell.value
-      else:
-        match cell.ctype:
-          case consts.BLANK:
-            string += " "
-          case consts.DL:
-            string += "-"
-          case consts.TL:
-            string += "_"
-          case consts.DW:
-            string += "="
-          case consts.TW:
-            string += "+"
+      elif cell.ctype == consts.BLANK:
+        string += " "
+      elif cell.ctype == consts.DL:
+        string += "-"
+      elif cell.ctype == consts.TL:
+        string += "_"
+      elif cell.ctype == consts.DW:
+        string += "="
+      elif cell.ctype == consts.TW:
+        string += "+"
     return string
 
 
@@ -132,19 +128,18 @@ class Grid(GridDef):
     grid.cells = []
     for i, ch in enumerate(data):
       pos = CPos(grid, i)
-      match ch:
-        case " ":
-          grid.cells.append(Cell(grid, pos, consts.BLANK))
-        case "-":
-          grid.cells.append(Cell(grid, pos, consts.DL))
-        case "_":
-          grid.cells.append(Cell(grid, pos, consts.TL))
-        case "=":
-          grid.cells.append(Cell(grid, pos, consts.DW))
-        case "+":
-          grid.cells.append(Cell(grid, pos, consts.TW))
-        case _:
-          grid.cells.append(Cell(grid, pos, consts.BLANK, ch))
+      if ch == " ":
+        grid.cells.append(Cell(grid, pos, consts.BLANK))
+      elif ch == "-":
+        grid.cells.append(Cell(grid, pos, consts.DL))
+      elif ch == "_":
+        grid.cells.append(Cell(grid, pos, consts.TL))
+      elif ch == "=":
+        grid.cells.append(Cell(grid, pos, consts.DW))
+      elif ch == "+":
+        grid.cells.append(Cell(grid, pos, consts.TW))
+      else:
+        grid.cells.append(Cell(grid, pos, consts.BLANK, ch))
     return grid
 
 
@@ -196,15 +191,14 @@ class Grid(GridDef):
     return self.cells[self.w * y + x]
 
   def next_cell(self, cell: Cell, dirn: Dir) -> Optional[Cell]:
-    match dirn:
-      case Dir.UP:
-        return self.up_from(cell)
-      case Dir.DOWN:
-        return self.down_from(cell)
-      case Dir.LEFT:
-        return self.left_from(cell)
-      case Dir.RIGHT:
-        return self.right_from(cell)
+    if dirn == Dir.UP:
+      return self.up_from(cell)
+    elif dirn == Dir.DOWN:
+      return self.down_from(cell)
+    elif dirn == Dir.LEFT:
+      return self.left_from(cell)
+    elif dirn == Dir.RIGHT:
+      return self.right_from(cell)
     raise Exception(f"unrecognized direction: {dirn}")
         
 

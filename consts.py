@@ -117,15 +117,14 @@ class Dir(Enum):
 
 
 def opposite(dirn: Dir) -> Dir:
-  match dirn:
-    case Dir.UP:
-      return Dir.DOWN
-    case Dir.DOWN:
-      return Dir.UP
-    case Dir.LEFT:
-      return Dir.RIGHT
-    case Dir.RIGHT:
-      return Dir.LEFT
+  if dirn == Dir.UP:
+    return Dir.DOWN
+  elif dirn == Dir.DOWN:
+    return Dir.UP
+  elif dirn == Dir.LEFT:
+    return Dir.RIGHT
+  elif dirn == Dir.RIGHT:
+    return Dir.LEFT
   raise Exception(f"unrecognized direction: {dirn}")
 
 LETTERS: Dict[str, int] = {

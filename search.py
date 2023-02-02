@@ -147,15 +147,15 @@ def search(ctx: SearchContext, cell: Optional[Cell], depth: int) -> Dict[str, in
   return words
 
 def check_cross_direction(ctx: SearchContext, cell: Cell, ltr: str, ch: str) -> Tuple[bool, int]:
-  match ctx.srch.dirn:
-    case Dir.RIGHT:
-      prefix, start = ctx.grid.upstr(cell)
-      suffix, end = ctx.grid.downstr(cell)
-    case Dir.DOWN:
-      prefix, start = ctx.grid.leftstr(cell)
-      suffix, end = ctx.grid.rightstr(cell)
-    case _:
-      raise Exception("cannot form words in leftward or upward directions")
+  dirn: str = ctx.srch.dirn
+  if dirn == Dir.RIGHT:
+    prefix, start = ctx.grid.upstr(cell)
+    suffix, end = ctx.grid.downstr(cell)
+  elif dirn == Dir.DOWN:
+    prefix, start = ctx.grid.leftstr(cell)
+    suffix, end = ctx.grid.rightstr(cell)
+  else:
+    raise Exception("cannot form words in leftward or upward directions")
 
   if start is None and end is None:
     return True, 0
