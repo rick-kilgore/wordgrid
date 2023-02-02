@@ -54195,6 +54195,7 @@ fazenda
 fazendas
 fazes
 fazing
+fe
 feal
 fealties
 fealty
@@ -78818,6 +78819,7 @@ izar
 izars
 izzard
 izzards
+ja
 jab
 jabbed
 jabber
@@ -109612,6 +109614,7 @@ peglike
 pegmatite
 pegmatites
 pegmatitic
+pego
 pegs
 peh
 pehs
@@ -126404,7 +126407,6 @@ rehypnotize
 rehypnotized
 rehypnotizes
 rehypnotizing
-rei
 reichsmark
 reichsmarks
 reidentified
