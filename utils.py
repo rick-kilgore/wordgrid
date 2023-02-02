@@ -20,9 +20,9 @@ def load_board(board_num: int, file: str) -> Grid:
   return grid
 
 
-def load_trie(words_file: str, use_pickle: bool = True) -> Trie:
+def load_trie(use_pickle: bool = True) -> Trie:
   dictwords = Trie()
-  pickle_filename = f"{words_file}.pickle"
+  pickle_filename = "words.pickle" 
   if use_pickle and os.path.exists(pickle_filename):
     with open(pickle_filename, "rb") as picklefile:
       print(f"loading words from {pickle_filename}")
