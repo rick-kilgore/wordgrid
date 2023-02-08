@@ -12,23 +12,23 @@ trie = None
 
 
 def handle_findwords(event, ctx) -> str:
-  data = json.loads(req.data)
   print(f"request: {event}")
   grid: Grid
   if "board" in event:
     grid = Grid.deserialize(event["board"])
+  verbose: bool = "verbose" in event and event["verbose"] > 0
   global trie
   if trie is None:
-    trie = load_trie()
+    trie = load_trie(False)
   words: Dict[str, FoundWord]
   if "x" in event and "y" in event:
-    words = search_from_single_pos(grid, trie, event["letters"], int(event["x"]), int(event["y"]))
+    words = search_from_single_pos(grid, trie, event["letters"], int(event["x"]), int(event["y"]), verbose)
   elif "row" in event:
-    words = search_from_row(grid, trie, event["letters"], int(event["row"]))
+    words = search_from_row(grid, trie, event["letters"], int(event["row"]), verbose)
   else:
-    words = search_whole_board(grid, trie, event["letters"])
+    words = search_whole_board(grid, trie, event["letters"], verbose)
 
   num_details = int(event["details"]) if "details" in event else 5
   bylen = True if "bylen" in event and event["bylen"] else False
   rsp: str = display_results(grid, words, num_details, bylen)
-  return rsp
+  return rsp.encode('utf-8')

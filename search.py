@@ -179,7 +179,7 @@ def addword(ctx: SearchContext, cell: Cell, words: Dict[str, FoundWord]) -> None
   pos: CPos = cell.pos.traverse(len(ctx.sofar) - 1, opposite(ctx.srch.dirn))
   if ctx.sofar not in words or words[ctx.sofar].score < score:
     words[ctx.sofar] = FoundWord(ctx.sofar, score, pos, ctx.srch.dirn)
-  log(ctx.srch, f"  {words[ctx.sofar]} at ({pos.x},{pos.y})")
+  log(ctx.srch, f"  {words[ctx.sofar]}")
 
 
 def addwords(dest: Dict[str, FoundWord], src: Dict[str, FoundWord]) -> None:

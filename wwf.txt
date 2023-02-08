@@ -170830,7 +170830,6 @@ woes
 woesome
 woful
 wofully
-wog
 wogs
 wok
 woke
@@ -171130,7 +171129,6 @@ woozily
 wooziness
 woozinesses
 woozy
-wop
 wops
 word
 wordage

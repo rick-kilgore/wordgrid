@@ -2,6 +2,7 @@
 
 [ -f $HOME/.path.sh ] && . $HOME/.path.sh
 
+rm -f main.py wordgrid.zip
 cp gcloud.py main.py
 zip wordgrid.zip requirements.txt *.py wwf.txt words.pickle
 gcloud storage cp wordgrid.zip gs://wordgrid

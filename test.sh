@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./wg.py -f games/test.data -d 3 tasje..
+time ./wg.py -b 1 -f games/test.data -d 3 tasje..
