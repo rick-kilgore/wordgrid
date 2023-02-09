@@ -20,14 +20,16 @@ def load_board(board_num: int, file: str) -> Grid:
   return grid
 
 
-def load_trie(use_pickle: bool = True) -> Trie:
+def load_trie(words_file: str, use_pickle: bool = True) -> Trie:
   dictwords = Trie()
-  pickle_filename = "words.pickle" 
+  pickle_filename = f"{words_file}.pickle"
   if use_pickle and os.path.exists(pickle_filename):
     with open(pickle_filename, "rb") as picklefile:
+      print(f"loading words from {pickle_filename}")
       return pickle.load(picklefile)
 
-  with open(f"wwf.txt") as dictfile:
+  with open(words_file) as dictfile:
+    print(f"loading words from {words_file}")
     lines = dictfile.readlines()
 
     for line in lines:

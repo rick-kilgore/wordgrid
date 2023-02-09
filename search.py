@@ -175,7 +175,11 @@ def check_cross_direction(ctx: SearchContext, cell: Cell, ltr: str, ch: str) -> 
 
 
 def addword(ctx: SearchContext, cell: Cell, words: Dict[str, FoundWord]) -> None:
-  score: int = ctx.score * ctx.scoremult + ctx.scoreadd
+  score: int
+  if len(ctx.sofar) == 1:
+    score = ctx.scoreadd
+  else:
+    score = ctx.score * ctx.scoremult + ctx.scoreadd
   pos: CPos = cell.pos.traverse(len(ctx.sofar) - 1, opposite(ctx.srch.dirn))
   if ctx.sofar not in words or words[ctx.sofar].score < score:
     words[ctx.sofar] = FoundWord(ctx.sofar, score, pos, ctx.srch.dirn)
