@@ -8,6 +8,7 @@ DL: str = "DL"
 TL: str = "TL"
 DW: str = "DW"
 TW: str = "TW"
+UK: str = "??"
 
 GWIDTH: int = 15
 GHEIGHT: int = 15
@@ -100,6 +101,21 @@ boards: List[List[Dict[int, str]]] = [
     { 3: DL, 4: TL, 6: TL, 7: DL },
     { 2: DL, 3: TL, 7: TL, 8: DL },
     { 0: DL, 1: TL, 9: TL, 10: DL },
+  ],
+
+  # 8th solo challenge board
+  [
+    { 0: TW, 1: DL, 2: DL, 8: DL, 9: DL, 10: TW },
+    { 0: DL, 3: TL, 7: TL, 10: DL },
+    { 0: DL, 2: DW, 4: DL, 6: DL, 8: DW, 10: DL },
+    { 0: DL, 5: UK, 10: DL },
+    { 1: DL, 2: TL, 3: DL, 5: UK, 7: DL, 8: TL, 9: DL },
+    { 4: DL, 5: UK, 6: DL },
+    { 3: TL, 5: UK, 7: TL },
+    { 2: DL, 5: UK, 8: DL },
+    { 1: DL, 3: DL, 5: DW, 7: DL, 9: DL },
+    { 1: TW, 4: DL, 6: DL, 9: TW },
+    { 2: DL, 3: DL, 4: DL, 6: DL, 7: DL, 8: DL },
   ],
 ]
 

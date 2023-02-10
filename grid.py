@@ -1,9 +1,10 @@
+from functools import reduce
 from typing import Any, Dict, List, Optional, Tuple
 
 import pdb
 import consts
 from consts import (
-  BLANK, Dir, opposite,
+  BLANK, Dir, opposite, UK
 )
 
 class GridDef:
@@ -103,6 +104,16 @@ class Grid(GridDef):
           ctype = row[ncol] if ncol in row else BLANK
           self.cells.append(Cell(self, pos, ctype))
 
+      if self.board_has_unknowns(mult_squares):
+        print("[33;mThis board has unknowns![m")
+        print("\n", self.show())
+        input("\nHit return to continue:")
+
+
+  def board_has_unknowns(self, mult_squares) -> bool:
+    def has_uk(accum: bool, row: Dict[int, str]) -> bool:
+      return accum or reduce(lambda acc,val: acc or val == UK, row.values(), False)
+    return reduce(has_uk, mult_squares, False)
 
   def serialize(self) -> str:
     string: str = f"{self.w}:{self.h}:"
