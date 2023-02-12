@@ -1206,7 +1206,6 @@ abyssobenthonic
 abyssolith
 abyssopelagic
 abyssus
-ac
 acacatechin
 acacatechol
 acacetin
@@ -12637,7 +12636,6 @@ angelize
 angelized
 angelizing
 angellike
-angelo
 angelocracy
 angelographer
 angelolater
@@ -36748,7 +36746,6 @@ blutwurst
 blvd
 blype
 blypes
-bm
 bo
 boa
 boaedon
@@ -43795,7 +43792,6 @@ byzantinize
 byzantium
 byzants
 c
-ca
 caaba
 caam
 caama
@@ -50260,7 +50256,6 @@ ccws
 cdf
 cdg
 cdr
-ce
 ceanothus
 cearin
 cease
@@ -59664,7 +59659,6 @@ clyster
 clysterize
 clysters
 clytemnestra
-cm
 cmd
 cmdg
 cmdr
@@ -100074,7 +100068,6 @@ engaging
 engagingly
 engagingness
 engallant
-engaol
 engarb
 engarble
 engarde
@@ -179145,8 +179138,6 @@ marzipan
 marzipans
 mas
 masa
-masai
-masais
 masanao
 masanobu
 masarid
@@ -180268,7 +180259,6 @@ mazzards
 mazzinian
 mazzinianism
 mazzinist
-mb
 mbalolo
 mbaya
 mbd
@@ -180279,7 +180269,6 @@ mbori
 mbps
 mbuba
 mbunda
-mc
 mccarthyism
 mccoy
 mcdonald
@@ -182789,7 +182778,6 @@ mesnality
 mesnalties
 mesnalty
 mesne
-meso
 mesoappendiceal
 mesoappendicitis
 mesoappendix
@@ -211550,8 +211538,6 @@ oogenesis
 oogenetic
 oogenies
 oogeny
-ooglea
-oogloea
 oogone
 oogonia
 oogonial
@@ -211660,7 +211646,6 @@ oory
 oos
 ooscope
 ooscopy
-oose
 oosperm
 oosperms
 oosphere
@@ -213182,7 +213167,6 @@ orkey
 orkhon
 orkneyan
 orl
-orlage
 orlando
 orle
 orlean
@@ -275078,7 +275062,6 @@ saebeins
 saecula
 saecular
 saeculum
-saeima
 saernaite
 saeta
 saeter
@@ -275978,7 +275961,6 @@ salvy
 salwey
 salwin
 salzfelle
-sam
 samadera
 samadh
 samadhi
@@ -276080,7 +276062,6 @@ sammier
 sammy
 samnani
 samnite
-samoa
 samoan
 samoans
 samogitian
@@ -282147,7 +282128,6 @@ selvedged
 selvedges
 selves
 selzogene
-sem
 semaeostomae
 semaeostomata
 semainier
@@ -291918,7 +291898,6 @@ slyness
 slynesses
 slype
 slypes
-sma
 smachrie
 smack
 smacked
@@ -367328,7 +367307,6 @@ yamato
 yamel
 yamen
 yamens
-yameo
 yamilke
 yammadji
 yammer
@@ -367773,7 +367751,6 @@ yente
 yentes
 yentnite
 yeo
-yeom
 yeoman
 yeomaness
 yeomanette
@@ -367940,7 +367917,6 @@ yizkor
 ylahayll
 ylem
 ylems
-ym
 ymca
 ynambu
 yo
@@ -368021,7 +367997,6 @@ yojan
 yojana
 yojuane
 yok
-yokage
 yoke
 yokeable
 yokeableness
