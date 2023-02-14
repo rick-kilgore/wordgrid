@@ -35,7 +35,7 @@ boards: List[List[Dict[int, str]]] = [
     { 0: TW, 2: DL, 4: DL, 6: DL, 8: DL, 10: TW, },
     { 3: TL, 7: TL, },
     { 2: DL, 8: DL, },
-    { 1: DW, 63: DW, },
+    { 1: DW, 9: DW, },
   ],
 
   # 2nd solo challenge board
