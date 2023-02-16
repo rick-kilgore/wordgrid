@@ -9,6 +9,21 @@ import (
   "github.com/derekparker/trie"
 )
 
+func Log(srch *SearchCriteria, msg string) {
+  if srch.verbose {
+    fmt.Print(msg)
+  }
+}
+
+
+func Spaces(n int) string {
+  spcs := make([]rune, n)
+  for i := 0; i < n; i++ {
+    spcs[i] = ' '
+  }
+  return string(spcs)
+}
+
 func Reverse(str string) string {
   in := []rune(str)
   strlen := len(in)
@@ -33,6 +48,7 @@ func LoadBoard(board_num int, file string) *Grid {
 
 
 func LoadTrie(words_file string) *trie.Trie {
+  fmt.Printf("loading words from %s\n", words_file)
   dictwords := trie.New()
   file, err := os.Open(words_file)
   if err != nil {
@@ -87,8 +103,8 @@ func DisplayResults(grid Grid, words map[string]FoundWord, details_count int, so
 
   sort.Slice(keys, less)
   var disp_str string = "found:"
-  for _, fw := range words {
-    disp_str += "\n  " + fw.Str()
+  for _, k := range keys {
+    disp_str += fmt.Sprintf("\n  %s", words[k])
   }
   disp_str += "\n"
 
@@ -101,7 +117,7 @@ func DisplayResults(grid Grid, words map[string]FoundWord, details_count int, so
     for d := details_count; d > 0; d-- {
       i := len(keys) - d
       var fw FoundWord = words[keys[i]]
-      disp_str += fmt.Sprintf("%02d: %s\n", d, fw.Str())
+      disp_str += fmt.Sprintf("%02d: %s\n", d, fw)
       gcl, err := grid.apply(fw.word, fw.pos, fw.dirn)
       if err != nil {
         fmt.Printf("failure applying %s: %v\n", fw.word, err)

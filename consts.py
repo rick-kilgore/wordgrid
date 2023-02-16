@@ -117,6 +117,21 @@ boards: List[List[Dict[int, str]]] = [
     { 1: TW, 4: DL, 6: DL, 9: TW },
     { 2: DL, 3: DL, 4: DL, 6: DL, 7: DL, 8: DL },
   ],
+
+  # 9th solo challenge board
+  [
+    { 0: TW, 2: DL, 4: DL, 6: DL, 8: DL, 10: TW },
+    { 1: DL, 2: DW, 4: DL, 5: UK, 6: DL, 8: DW, 9: DL },
+    { 3: DL, 5: UK, 7: DL },
+    { 0: DL, 1: DL, 3: DL, 5: UK, 7: DL, 9: DL, 10: DL },
+    { 1: DL, 2: DL, 4: DL, 5: UK, 6: DL, 8: DL, 9: DL },
+    { 3: DL, 5: UK, 7: DL },
+    { 0: TL, 3: DL, 5: UK, 7: DL, 10: TL },
+    { 1: TL, 3: DL, 4: DL, 6: DL, 7: DL, 9: TL },
+    { 2: DW, 3: UK, 4: UK, 5: UK, 6: UK, 7: UK, 8: DW },
+    { 3: DL, 4: DL, 6: DL, 7: DL },
+    { 1: TW, 2: DL, 8: DL, 9: TW },
+  ],
 ]
 
 # returns [grid_width, grid_height, grid_spec]

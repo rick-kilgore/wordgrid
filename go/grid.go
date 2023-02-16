@@ -200,11 +200,11 @@ func (g Grid) clone() Grid {
 func (g Grid) show() string {
   showstr := "   "
   for i := 0; i < g.w; i++ {
-    showstr += fmt.Sprintf("%3s", strconv.Itoa(i))
+    showstr += fmt.Sprintf("%2s ", strconv.Itoa(i))
   }
   showstr += "\n"
   for y := 0; y < g.h; y++ {
-    showstr += fmt.Sprintf("%3s", strconv.Itoa(y))
+    showstr += fmt.Sprintf("%2s ", strconv.Itoa(y))
     for x := 0; x < g.w; x++ {
       cell := g.at(x, y)
       if cell.value != "" {
