@@ -131,3 +131,5 @@ words.pickle
 *.data
 prof.txt
 out
+go/wordgrid
+go/test
