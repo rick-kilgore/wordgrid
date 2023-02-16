@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 words.pickle
 games/
+*.data
 prof.txt
 out
 go/wordgrid
