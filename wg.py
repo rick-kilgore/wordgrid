@@ -8,7 +8,7 @@ from search import FoundWord, search_from_row, search_from_single_pos, search_wh
 from trie import Trie
 from utils import display_results, load_board, load_trie
 
-parser = argparse.ArgumentParser(description="Sync folders with Google Drive")
+parser = argparse.ArgumentParser(description="Find words on a scrabble board")
 parser.add_argument("-f", "--file", help="board represted by file as input")
 parser.add_argument("-b", "--board", default=0, type=int, metavar="VERSION", help="use one of the solo match grids")
 parser.add_argument("-p", "--pos", nargs=2, type=int, metavar="N", help="look for words starting at x y pos")
