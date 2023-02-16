@@ -19,7 +19,14 @@ func Reverse(str string) string {
   return string(out)
 }
 
-func LoadBoard(board_num int, file string) Grid {
+func Input(prompt string) string {
+  reader := bufio.NewReader(os.Stdin)
+  fmt.Sprintf("%s: ", prompt)
+  text, _ := reader.ReadString('\n')
+  return text
+}
+
+func LoadBoard(board_num int, file string) *Grid {
   width, height, bspec := GetBoardData(board_num)
   return GridFromFile(file, width, height, bspec)
 }
@@ -85,14 +92,22 @@ func DisplayResults(grid Grid, words map[string]FoundWord, details_count int, so
   }
   disp_str += "\n"
 
+  if details_count > len(keys) {
+    details_count = len(keys)
+  }
+
   if details_count > 0 {
     disp_str += fmt.Sprintf("\n\ntop %d are:\n\n", details_count)
-    for i := len(keys) - details_count; i < len(keys); i++ {
+    for d := details_count; d > 0; d-- {
+      i := len(keys) - d
       var fw FoundWord = words[keys[i]]
-      disp_str += fmt.Sprintf("%02s: %s\n", details_count - i, fw.Str())
-      var gcl Grid = grid.clone()
-      gcl.apply(fw.word, fw.pos, fw.dirn)
-      disp_str += gcl.show() + "\n"
+      disp_str += fmt.Sprintf("%02d: %s\n", d, fw.Str())
+      gcl, err := grid.apply(fw.word, fw.pos, fw.dirn)
+      if err != nil {
+        fmt.Printf("failure applying %s: %v\n", fw.word, err)
+      } else {
+        disp_str += gcl.show() + "\n"
+      }
     }
   }
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-  "bufio"
   "errors"
   "fmt"
   "os"
@@ -52,12 +51,12 @@ func (cell Cell) Str() string {
   if val == "" {
     switch cell.ctype {
       case BLANK:
-        val = "''"
+        val = ""
       default:
         val = cell.ctype
     }
   }
-  return fmt.Sprintf("%s=%d", cell.pos.Str(), val)
+  return fmt.Sprintf("%s:%s", cell.pos.Str(), val)
 }
 
 
@@ -91,15 +90,6 @@ type Grid struct {
 }
 
 
-// TODO: move to util.go
-func input(prompt string) string {
-  reader := bufio.NewReader(os.Stdin)
-  fmt.Sprintf("%s: ", prompt)
-  text, _ := reader.ReadString('\n')
-  return text
-}
-
-
 func NewGrid(w, h int, mult_squares BoardSpec) *Grid {
   newgrid := &Grid{w, h, mult_squares, make([]Cell, w * h)}
   for nrow := 0; nrow < h; nrow++ {
@@ -121,7 +111,7 @@ func NewGrid(w, h int, mult_squares BoardSpec) *Grid {
   if newgrid.board_has_unknowns(mult_squares) {
     print("[33;mThis board has unknowns![m")
     print("\n", newgrid.show())
-    input("\nHit return to continue")
+    Input("\nHit return to continue")
   }
 
   return newgrid
@@ -233,19 +223,23 @@ func (g Grid) show() string {
   return showstr
 }
 
-func (g Grid) apply(word string, startpos CPos, dirn Dir) (*Grid, error) {
+func (g *Grid) apply(word string, startpos CPos, dirn Dir) (*Grid, error) {
   grid := g.clone()
   pos := startpos
   for _, ch := range word {
-    cell := grid.cells[pos.i] 
+    cell := grid.at(pos.x, pos.y) 
     var letter2apply string = string(ch)
     if cell.value == "" {
       cell.value = letter2apply
       cell.added = true
     } else if cell.value != letter2apply {
-      return nil, errors.New(fmt.Sprintf("failure applying word %s: found existing letter %s " +
+      msg := fmt.Sprintf("could not apply %s at %s dir %s to:\n%s",
+                              word, startpos.Str(), dirn, g.clone())
+      msg += fmt.Sprintf("failure applying word %s: found existing letter %s " +
                                 "at (%d,%d) instead of '%s'",
-                                word, cell.value, pos.x, pos.y, letter2apply))
+                                word, cell.value, pos.x, pos.y, letter2apply)
+      fmt.Println(msg)
+      return nil, errors.New(msg)
     }
     pos = pos.Traverse(1, dirn)
   }
@@ -266,7 +260,7 @@ func (g Grid) next_cell(cell Cell, dirn Dir) *Cell {
     case RIGHT:
       next = g.right_from(cell)
     default:
-      panic(fmt.Sprintf("unrecognized direction: %v", dirn))
+      panic(fmt.Sprintf("unrecognized direction: %s", dirn))
   }
   return next
 }
@@ -279,7 +273,7 @@ func (g Grid) left_from(cell Cell) *Cell {
 }
 
 func (g Grid) right_from(cell Cell) *Cell {
-  if cell.pos.x >= g.w {
+  if cell.pos.x >= g.w - 1 {
     return nil
   }
   return &g.cells[cell.pos.i + 1]
@@ -293,8 +287,11 @@ func (g Grid) up_from(cell Cell) *Cell {
 }
 
 func (g Grid) down_from(cell Cell) *Cell {
-  if cell.pos.y >= g.h {
+  if cell.pos.y >= g.h - 1 {
     return nil
+  }
+  if cell.pos.i + g.w >= len(g.cells) {
+    fmt.Printf("down_from failing: from cell=%v", cell)
   }
   return &g.cells[cell.pos.i + g.w]
 }
@@ -349,8 +346,8 @@ func (g Grid) IsAnchored(cell Cell) bool {
 }
 
 
-func GridFromFile(fname string, w int, h int, mult_squares BoardSpec) Grid {
-  grid := Grid{w, h, mult_squares, make([]Cell, w * h)}
+func GridFromFile(fname string, w int, h int, mult_squares BoardSpec) *Grid {
+  grid := NewGrid(w, h, mult_squares)
 
   data, err := os.ReadFile(fname)
   if err != nil {

@@ -32,21 +32,23 @@ func init() {
 
 func main() {
   flag.Parse()
-  var grid Grid = LoadBoard(*board, *gamefile)
-  if *verbose {
+  var grid *Grid = LoadBoard(*board, *gamefile)
+  // if *verbose {
     fmt.Println(grid.show())
-  }
+  // }
   var trie *trie.Trie = LoadTrie(*wordsfile)
   var words map[string]FoundWord
   var letters string = flag.Args()[0]
 
   if *pos != "" {
-    // todo
+    var x, y int
+    fmt.Sscanf(*pos, "%d,%d", &x, &y)
+    words = SearchFromSinglePos(*grid, trie, letters, x, y, *verbose)
   } else if *row >= 0 && *row < grid.h {
-    words = SearchFromRow(grid, trie, letters, *row, *verbose)
+    words = SearchFromRow(*grid, trie, letters, *row, *verbose)
   } else {
-    words = SearchWholeBoard(grid, trie, letters, *verbose)
+    words = SearchWholeBoard(*grid, trie, letters, *verbose)
   }
-  fmt.Println(DisplayResults(grid, words, *details_count, *bylen))
+  fmt.Println(DisplayResults(*grid, words, *details_count, *bylen))
 }
 

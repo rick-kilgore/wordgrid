@@ -162,7 +162,7 @@ const (
   LEFT Dir = 4
 )
 
-func (dir Dir) Str() string {
+func (dir Dir) String() string {
   switch dir {
     case UP: return "UP"
     case RIGHT: return "RIGHT"
@@ -184,7 +184,7 @@ func Opposite(dirn Dir) Dir {
     case RIGHT:
       return RIGHT
     default:
-      panic(fmt.Sprintf("unrecognized direction: %s", dirn.Str()))
+      panic(fmt.Sprintf("unrecognized direction: %s", dirn))
   }
 }
 

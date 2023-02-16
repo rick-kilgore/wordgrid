@@ -15,15 +15,11 @@ type SearchCriteria struct {
   verbose bool
 }
 
-/*
-  def __init__(self, grid: Grid, start: Cell, dirn: Dir, letters: str, trie: Trie, verbose: bool = False):
-    self.grid = grid
-    self.start_cell = start
-    self.dirn = dirn
-    self.letters = letters
-    self.trie = trie
-    self.verbose = verbose
-*/
+func (sc SearchCriteria) String() string {
+  return fmt.Sprintf("search: start=%s dir=%s letters=%s",
+                     sc.start_cell, sc.dirn, sc.letters)
+}
+
 
 func log(srch *SearchCriteria, msg string) {
   if srch.verbose {
@@ -34,7 +30,7 @@ func log(srch *SearchCriteria, msg string) {
 type SearchContext struct {
   srch *SearchCriteria
   grid *Grid
-  start_cell *Cell
+  cell *Cell
   letters string
   sofar string
   score int
@@ -43,28 +39,24 @@ type SearchContext struct {
 }
 
 func NewSearchContext(srch *SearchCriteria, is_anchored bool) SearchContext {
+  if is_anchored {
+    fmt.Printf("initial anchored state is %v for %s\n", is_anchored, srch.start_cell.pos.Str())
+  }
   return SearchContext{
       srch, &srch.grid, &srch.start_cell, srch.letters, "", 0, 0, 1, is_anchored,
   }
 }
 
-/*
-class SearchContext:
-  def __init__(self, srch: SearchCriteria, first_move: bool = False):
-    self.srch: SearchCriteria = srch
-    self.grid: Grid = srch.grid
-    self.cell: Optional[Cell] = srch.start_cell
-    self.letters: str = srch.letters
-    self.sofar: str = ""
-    self.score: int = 0
-    self.scoreadd: int = 0
-    self.scoremult: int = 1
-    self.is_anchored = first_move
-*/
+
+func (sc SearchContext) String() string {
+  return fmt.Sprintf("ctx: cell=%s dir=%s letters=%s sofar=%s",
+                     *sc.cell, sc.srch.dirn, sc.letters, sc.sofar)
+}
+
 
 func clone_context(ctx SearchContext) SearchContext {
   return SearchContext{
-    ctx.srch, ctx.grid, ctx.start_cell,
+    ctx.srch, ctx.grid, ctx.cell,
     ctx.letters, ctx.sofar,
     ctx.score, ctx.scoreadd, ctx.scoremult,
     ctx.is_anchored,
@@ -87,7 +79,7 @@ type FoundWord struct {
 */
 
 func (fw FoundWord) Str() string {
-  return fmt.Sprintf("%d: %s %s from %s", fw.score, fw.word, fw.dirn.Str(), fw.pos.Str())
+  return fmt.Sprintf("%d: %s %s from %s", fw.score, fw.word, fw.dirn, fw.pos.Str())
 }
 
 
@@ -121,7 +113,11 @@ func next_context(ctx SearchContext, nxt_cell *Cell, sofar string, letters strin
   var nxt_ctx SearchContext = clone_context(ctx)
   nxt_ctx.sofar = sofar
   nxt_ctx.letters = letters
-  nxt_ctx.is_anchored = ctx.is_anchored || (nxt_cell != nil && ctx.grid.IsAnchored(*nxt_cell))
+  nxt_ctx.is_anchored = ctx.is_anchored
+  if !ctx.is_anchored && nxt_cell != nil && ctx.grid.IsAnchored(*nxt_cell) {
+    fmt.Printf("setting is_anchored with sofar=%s dir=%s nxt_cell=%v\n", sofar, ctx.srch.dirn, nxt_cell.Str())
+    ctx.is_anchored = true
+  }
   return nxt_ctx
 }
 
@@ -165,7 +161,7 @@ func search(ctx SearchContext, cell *Cell, depth int) map[string]FoundWord {
   // places we can report them all
   words := map[string]FoundWord{}
   if cell != nil {
-    if cell.value != "" {
+    if cell.value == "" {
       var letters string = ctx.letters
       for _, ltrRune := range unique_letters(letters) {
         ltr := string(ltrRune)
@@ -258,6 +254,9 @@ func addword(ctx SearchContext, cell Cell, words map[string]FoundWord) {
     score = ctx.score * ctx.scoremult + ctx.scoreadd
   }
   var pos CPos = cell.pos.Traverse(wlen - 1, Opposite(ctx.srch.dirn))
+  if pos.x == 14 && pos.y == 7 {
+    fmt.Printf("BAD: ctx=%v cell=%v\n", ctx, cell)
+  }
   prev, exists := words[ctx.sofar]
   if !exists || prev.score < score {
     words[ctx.sofar] = FoundWord{ctx.sofar, score, pos, ctx.srch.dirn}
@@ -317,7 +316,8 @@ func SearchWholeBoard(grid Grid, trie *trie.Trie, letters string, verbose bool) 
     for x := 0; x < grid.w; x++ {
       var cell *Cell = grid.at(x, y)
       if cell.value == "" {
-        addwords(words, SearchFromSinglePos(grid, trie, letters, x, y, verbose))
+        rres := SearchFromSinglePos(grid, trie, letters, x, y, verbose)
+        addwords(words, rres)
       }
     }
   }

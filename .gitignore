@@ -133,3 +133,4 @@ prof.txt
 out
 go/wordgrid
 go/test
+go/gdb.init
