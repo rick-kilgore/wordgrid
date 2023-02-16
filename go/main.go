@@ -33,9 +33,9 @@ func init() {
 func main() {
   flag.Parse()
   var grid *Grid = LoadBoard(*board, *gamefile)
-  // if *verbose {
+  if *verbose {
     fmt.Println(grid.show())
-  // }
+  }
   var trie *trie.Trie = LoadTrie(*wordsfile)
   var words map[string]FoundWord
   var letters string = flag.Args()[0]

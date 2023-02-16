@@ -16,7 +16,7 @@ func NewCPos(gridw, i int) CPos {
   return CPos{gridw, i, i % gridw, i / gridw}
 }
 
-func (pos CPos) Str() string {
+func (pos CPos) String() string {
     return fmt.Sprintf("(%d,%d)", pos.x, pos.y)
 }
 
@@ -46,7 +46,7 @@ type Cell struct {
   added bool
 }
 
-func (cell Cell) Str() string {
+func (cell Cell) String() string {
   val := cell.value
   if val == "" {
     switch cell.ctype {
@@ -56,7 +56,7 @@ func (cell Cell) Str() string {
         val = cell.ctype
     }
   }
-  return fmt.Sprintf("%s:%s", cell.pos.Str(), val)
+  return fmt.Sprintf("%s:%s", cell.pos, val)
 }
 
 
@@ -234,7 +234,7 @@ func (g *Grid) apply(word string, startpos CPos, dirn Dir) (*Grid, error) {
       cell.added = true
     } else if cell.value != letter2apply {
       msg := fmt.Sprintf("could not apply %s at %s dir %s to:\n%s",
-                              word, startpos.Str(), dirn, g.clone())
+                              word, startpos, dirn, g.clone())
       msg += fmt.Sprintf("failure applying word %s: found existing letter %s " +
                                 "at (%d,%d) instead of '%s'",
                                 word, cell.value, pos.x, pos.y, letter2apply)

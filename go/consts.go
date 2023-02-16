@@ -180,9 +180,9 @@ func Opposite(dirn Dir) Dir {
     case DOWN:
       return UP
     case LEFT:
-      return LEFT
-    case RIGHT:
       return RIGHT
+    case RIGHT:
+      return LEFT
     default:
       panic(fmt.Sprintf("unrecognized direction: %s", dirn))
   }

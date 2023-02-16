@@ -16,7 +16,7 @@ type SearchCriteria struct {
 }
 
 func (sc SearchCriteria) String() string {
-  return fmt.Sprintf("search: start=%s dir=%s letters=%s",
+  return fmt.Sprintf("[search: start=%s dir=%s letters=%s]",
                      sc.start_cell, sc.dirn, sc.letters)
 }
 
@@ -39,9 +39,6 @@ type SearchContext struct {
 }
 
 func NewSearchContext(srch *SearchCriteria, is_anchored bool) SearchContext {
-  if is_anchored {
-    fmt.Printf("initial anchored state is %v for %s\n", is_anchored, srch.start_cell.pos.Str())
-  }
   return SearchContext{
       srch, &srch.grid, &srch.start_cell, srch.letters, "", 0, 0, 1, is_anchored,
   }
@@ -49,8 +46,8 @@ func NewSearchContext(srch *SearchCriteria, is_anchored bool) SearchContext {
 
 
 func (sc SearchContext) String() string {
-  return fmt.Sprintf("ctx: cell=%s dir=%s letters=%s sofar=%s",
-                     *sc.cell, sc.srch.dirn, sc.letters, sc.sofar)
+  return fmt.Sprintf("[ctx: %s cell=%s dir=%s letters=%s sofar=%s]",
+                     *sc.srch, *sc.cell, sc.srch.dirn, sc.letters, sc.sofar)
 }
 
 
@@ -79,7 +76,7 @@ type FoundWord struct {
 */
 
 func (fw FoundWord) Str() string {
-  return fmt.Sprintf("%d: %s %s from %s", fw.score, fw.word, fw.dirn, fw.pos.Str())
+  return fmt.Sprintf("%d: %s %s from %s", fw.score, fw.word, fw.dirn, fw.pos)
 }
 
 
@@ -115,7 +112,6 @@ func next_context(ctx SearchContext, nxt_cell *Cell, sofar string, letters strin
   nxt_ctx.letters = letters
   nxt_ctx.is_anchored = ctx.is_anchored
   if !ctx.is_anchored && nxt_cell != nil && ctx.grid.IsAnchored(*nxt_cell) {
-    fmt.Printf("setting is_anchored with sofar=%s dir=%s nxt_cell=%v\n", sofar, ctx.srch.dirn, nxt_cell.Str())
     ctx.is_anchored = true
   }
   return nxt_ctx
@@ -213,11 +209,11 @@ func check_cross_direction(ctx SearchContext, cell Cell, ltr string, ch string) 
 
   switch ctx.srch.dirn {
     case RIGHT:
-      prefix, start = ctx.grid.StrUpFromCell(cell)
-      suffix, end = ctx.grid.StrDownFromCell(cell)
-    case DOWN:
       prefix, start = ctx.grid.StrLeftFromCell(cell)
       suffix, end = ctx.grid.StrRightFromCell(cell)
+    case DOWN:
+      prefix, start = ctx.grid.StrUpFromCell(cell)
+      suffix, end = ctx.grid.StrDownFromCell(cell)
     default:
       panic("cannot form words in leftward or upward directions")
   }
@@ -254,9 +250,6 @@ func addword(ctx SearchContext, cell Cell, words map[string]FoundWord) {
     score = ctx.score * ctx.scoremult + ctx.scoreadd
   }
   var pos CPos = cell.pos.Traverse(wlen - 1, Opposite(ctx.srch.dirn))
-  if pos.x == 14 && pos.y == 7 {
-    fmt.Printf("BAD: ctx=%v cell=%v\n", ctx, cell)
-  }
   prev, exists := words[ctx.sofar]
   if !exists || prev.score < score {
     words[ctx.sofar] = FoundWord{ctx.sofar, score, pos, ctx.srch.dirn}
