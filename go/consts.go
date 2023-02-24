@@ -53,7 +53,7 @@ var board2 = BoardSpec{
   { 1: DL, 2: TW, 5: DL, 6: TL, 9: DL, 10: TW, },
   { 2: DL, 3: DW, 6: DL, 7: DW, 10: DL, },
   { 0: DL, 3: DL, 4: DL, 7: DL, 8: DL, },
-  { 0: TL, 1: DL, 4: DL, },
+  { 0: TL, 1: DL, 4: DL, 8:TL, 9: DL },
 }
 
 // 3rd solo challenge board
