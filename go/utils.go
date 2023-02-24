@@ -3,11 +3,36 @@ package main
 import (
   "bufio"
   "fmt"
+  "io"
   "os"
   "sort"
   "strings"
   "github.com/derekparker/trie"
 )
+
+// Interfaces used for testing
+type (
+  Reader interface {
+    ReadString(delim byte) (string, error)
+  }
+  Scanner interface {
+    Scan() bool
+    Text() string
+  }
+  File interface {
+    Close() error
+  }
+  RFac func(rd io.Reader) Reader
+  SFac func(f File) Scanner
+  FOpener func(fname string) (File, error)
+)
+
+var (
+  ReaderFactory RFac = func(rd io.Reader) Reader { return bufio.NewReader(rd) }
+  ScannerFactory SFac = func(f File) Scanner { return bufio.NewScanner(f.(*os.File)) }
+  FileOpener FOpener = func(fname string) (File, error) { return os.Open(fname) }
+)
+// end Interfaces used for testing
 
 func Log(srch *SearchCriteria, msg string) {
   if srch.verbose {
@@ -17,6 +42,9 @@ func Log(srch *SearchCriteria, msg string) {
 
 
 func Spaces(n int) string {
+  if n < 0 {
+    return ""
+  }
   spcs := make([]rune, n)
   for i := 0; i < n; i++ {
     spcs[i] = ' '
@@ -35,7 +63,7 @@ func Reverse(str string) string {
 }
 
 func Input(prompt string) string {
-  reader := bufio.NewReader(os.Stdin)
+  var reader Reader = ReaderFactory(os.Stdin)
   fmt.Sprintf("%s: ", prompt)
   text, _ := reader.ReadString('\n')
   return text
@@ -50,11 +78,11 @@ func LoadBoard(board_num int, file string) *Grid {
 func LoadTrie(words_file string) *trie.Trie {
   fmt.Printf("loading words from %s\n", words_file)
   dictwords := trie.New()
-  file, err := os.Open(words_file)
+  file, err := FileOpener(words_file)
   if err != nil {
     panic(fmt.Sprintf("failed to open words file %s: %v\n", words_file, err))
   }
-  scanner := bufio.NewScanner(file)
+  scanner := ScannerFactory(file)
   for scanner.Scan() {
     dictwords.Add(strings.ToLower(strings.Trim(scanner.Text(), " \r\n")), 1)
   }
