@@ -234,7 +234,7 @@ func (g *Grid) apply(word string, startpos CPos, dirn Dir) (*Grid, error) {
       cell.added = true
     } else if cell.value != letter2apply {
       msg := fmt.Sprintf("could not apply %s at %s dir %s to:\n%s",
-                              word, startpos, dirn, g.clone())
+                              word, startpos, dirn, g.show())
       msg += fmt.Sprintf("failure applying word %s: found existing letter %s " +
                                 "at (%d,%d) instead of '%s'",
                                 word, cell.value, pos.x, pos.y, letter2apply)

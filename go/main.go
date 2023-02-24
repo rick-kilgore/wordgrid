@@ -3,6 +3,7 @@ package main
 import (
   "flag"
   "fmt"
+  "os"
   "github.com/derekparker/trie"
 )
 
@@ -15,6 +16,7 @@ var (
   details_count *int
   bylen *bool
   verbose *bool
+  showboard *int
   letters *string
 )
 
@@ -27,11 +29,18 @@ func init() {
   details_count = flag.Int("d", 5, "number of detailed results to show")
   bylen = flag.Bool("l", false, "sort results by word length first")
   verbose = flag.Bool("v", false, "print some debugging info on console")
+  showboard = flag.Int("s", -1, "show the tiles on board N")
 }
 
 
 func main() {
   flag.Parse()
+  if *showboard > -1 {
+    w, h, tiles := GetBoardData(*showboard)
+    var grid *Grid = NewGrid(w, h, tiles)
+    fmt.Println(grid.show())
+    os.Exit(0)
+  }
   var grid *Grid = LoadBoard(*board, *gamefile)
   if *verbose {
     fmt.Println(grid.show())
