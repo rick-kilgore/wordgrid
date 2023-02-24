@@ -64,7 +64,7 @@ func Reverse(str string) string {
 
 func Input(prompt string) string {
   var reader Reader = ReaderFactory(os.Stdin)
-  fmt.Sprintf("%s: ", prompt)
+  fmt.Printf("%s: ", prompt)
   text, _ := reader.ReadString('\n')
   return text
 }
