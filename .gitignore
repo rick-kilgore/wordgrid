@@ -133,5 +133,5 @@ games/
 prof.txt
 out
 go/wordgrid
-go/test
+go/sbox
 go/gdb.init
