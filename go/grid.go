@@ -85,21 +85,21 @@ func (cell Cell) WordMult() int {
 
 type Grid struct {
   w, h int
-  mult_squares BoardSpec
+  tiles []RowSpec
   cells []Cell
 }
 
 
-func NewGrid(w, h int, mult_squares BoardSpec) *Grid {
-  newgrid := &Grid{w, h, mult_squares, make([]Cell, w * h)}
-  for nrow := 0; nrow < h; nrow++ {
+func NewGrid(board BoardSpec) *Grid {
+  newgrid := &Grid{board.w, board.h, board.tiles, make([]Cell, board.w * board.h)}
+  for nrow := 0; nrow < newgrid.h; nrow++ {
     var srcrow int = nrow
-    if nrow >= len(mult_squares) {
-      srcrow = h - 1 - nrow
+    if nrow >= len(newgrid.tiles) {
+      srcrow = newgrid.h - 1 - nrow
     }
-    var row RowSpec = mult_squares[srcrow]
-    for ncol := 0; ncol < w; ncol++ {
-      pos := NewCPos(w, nrow * w + ncol)
+    var row RowSpec = newgrid.tiles[srcrow]
+    for ncol := 0; ncol < newgrid.w; ncol++ {
+      pos := NewCPos(newgrid.w, nrow * newgrid.w + ncol)
       ctype := row[ncol]
       if ctype == "" {
         ctype = BLANK
@@ -108,7 +108,7 @@ func NewGrid(w, h int, mult_squares BoardSpec) *Grid {
     }
   }
 
-  if newgrid.board_has_unknowns(mult_squares) {
+  if newgrid.board_has_unknowns(board) {
     print("[33;mThis board has unknowns![m")
     print("\n", newgrid.show())
     Input("\nHit return to continue")
@@ -118,8 +118,8 @@ func NewGrid(w, h int, mult_squares BoardSpec) *Grid {
 }
 
 
-func (g Grid) board_has_unknowns(mult_squares BoardSpec) bool {
-  for _, row := range mult_squares {
+func (g Grid) board_has_unknowns(board BoardSpec) bool {
+  for _, row := range board.tiles {
     for _, ctype := range row {
       if ctype == UK {
         return true
@@ -166,7 +166,7 @@ func deserialize(str string) *Grid {
     fmt.Fprintf(os.Stderr, "bad width or height string: w=%s h=%s\n", sw, sh)
     return nil
   }
-  grid := NewGrid(w, h, BoardSpec{})
+  grid := NewGrid(BoardSpec{w, h, []RowSpec{}})
   for i, ch := range data {
     pos := NewCPos(grid.w, i)
     switch ch {
@@ -189,7 +189,7 @@ func deserialize(str string) *Grid {
 
 
 func (g Grid) clone() Grid {
-  newgrid := Grid{g.w, g.h, g.mult_squares, make([]Cell, g.w * g.h)}
+  newgrid := Grid{g.w, g.h, g.tiles, make([]Cell, g.w * g.h)}
   for i, cell := range g.cells {
     newgrid.cells[i] = Cell{cell.pos, cell.ctype, cell.value, cell.added}
   }
@@ -346,8 +346,8 @@ func (g Grid) IsAnchored(cell Cell) bool {
 }
 
 
-func GridFromFile(fname string, w int, h int, mult_squares BoardSpec) *Grid {
-  grid := NewGrid(w, h, mult_squares)
+func GridFromFile(fname string, board BoardSpec) *Grid {
+  grid := NewGrid(board)
 
   data, err := os.ReadFile(fname)
   if err != nil {

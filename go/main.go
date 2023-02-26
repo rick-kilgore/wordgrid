@@ -10,7 +10,8 @@ import (
 var (
   gamefile *string
   wordsfile *string
-  board *int
+  sboard *int
+  pboard *int
   pos *string
   row *int
   details_count *int
@@ -23,7 +24,8 @@ var (
 func init() {
   gamefile = flag.String("f", "", "board represted by file as input")
   wordsfile = flag.String("w", "mix.txt", "use a different words file")
-  board = flag.Int("b", 0, "use one of the solo match grids")
+  sboard = flag.Int("sb", 0, "use one of the solo match grids (1-based index)")
+  pboard = flag.Int("pb", 0, "specify a player board to use (1-based index)")
   pos = flag.String("p", "", "look for words starting at x,y pos")
   row = flag.Int("r", -1, "look for words starting in row N")
   details_count = flag.Int("d", 5, "number of detailed results to show")
@@ -35,13 +37,19 @@ func init() {
 
 func main() {
   flag.Parse()
-  if *showboard > -1 {
-    w, h, tiles := GetBoardData(*showboard)
-    var grid *Grid = NewGrid(w, h, tiles)
+  if *showboard > 0 {
+    board := SoloBoards[*showboard]
+    var grid *Grid = NewGrid(board)
     fmt.Println(grid.show())
     os.Exit(0)
   }
-  var grid *Grid = LoadBoard(*board, *gamefile)
+  var board BoardSpec = PlayerBoards[0]
+  if *sboard > 0 {
+    board = SoloBoards[*sboard]
+  } else if *pboard > 0 {
+    board = PlayerBoards[*pboard]
+  }
+  var grid *Grid = LoadBoard(board, *gamefile)
   if *verbose {
     fmt.Println(grid.show())
   }

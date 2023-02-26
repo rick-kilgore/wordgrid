@@ -69,9 +69,8 @@ func Input(prompt string) string {
   return text
 }
 
-func LoadBoard(board_num int, file string) *Grid {
-  width, height, bspec := GetBoardData(board_num)
-  return GridFromFile(file, width, height, bspec)
+func LoadBoard(board BoardSpec, file string) *Grid {
+  return GridFromFile(file, board)
 }
 
 
