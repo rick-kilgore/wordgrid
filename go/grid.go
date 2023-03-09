@@ -208,7 +208,7 @@ func (g Grid) show() string {
     for x := 0; x < g.w; x++ {
       cell := g.at(x, y)
       if cell.value != "" {
-        esc := 35
+        esc := 34
         if cell.added {
           esc = 32
         }

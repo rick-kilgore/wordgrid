@@ -25,6 +25,7 @@ type SearchContext struct {
   grid *Grid
   cell *Cell
   letters string
+  used int
   sofar string
   score int
   scoreadd, scoremult int
@@ -33,7 +34,13 @@ type SearchContext struct {
 
 func NewSearchContext(srch *SearchCriteria, is_anchored bool) SearchContext {
   return SearchContext{
-      srch, &srch.grid, &srch.start_cell, srch.letters, "", 0, 0, 1, is_anchored,
+      srch, &srch.grid, &srch.start_cell, srch.letters,
+      0,  // used
+      "", // sofar
+      0,  // score
+      0,  // scoreadd
+      1,  // scoremult
+      is_anchored,
   }
 }
 
@@ -47,7 +54,7 @@ func (sc SearchContext) String() string {
 func clone_context(ctx *SearchContext) SearchContext {
   return SearchContext{
     ctx.srch, ctx.grid, ctx.cell,
-    ctx.letters, ctx.sofar,
+    ctx.letters, ctx.used, ctx.sofar,
     ctx.score, ctx.scoreadd, ctx.scoremult,
     ctx.is_anchored,
   }
@@ -56,6 +63,7 @@ func clone_context(ctx *SearchContext) SearchContext {
 type FoundWord struct {
   word string
   score int
+  used int
   pos CPos
   dirn Dir
 }
@@ -69,7 +77,7 @@ type FoundWord struct {
 */
 
 func (fw FoundWord) String() string {
-  return fmt.Sprintf("%d: %s %s from %s", fw.score, fw.word, fw.dirn, fw.pos)
+  return fmt.Sprintf("%d: %s %s from %s (%d ltrs)", fw.score, fw.word, fw.dirn, fw.pos, fw.used)
 }
 
 
@@ -82,6 +90,7 @@ func add_letter(ctx *SearchContext, cell Cell, ltr string, ch string, depth int)
   var letters string = strings.Replace(ctx.letters, ltr, "", 1)
   var nxt_cell *Cell = ctx.grid.next_cell(cell, ctx.srch.dirn)
   var nxt_ctx SearchContext = next_context(ctx, cell, sofar, letters)
+  nxt_ctx.used++
   scoreadd := 0
   if ch == ltr {
     letval := LETTERS[strings.ToLower(ch)]
@@ -255,10 +264,13 @@ func addword(ctx SearchContext, cell Cell, words map[string]FoundWord, depth int
   } else {
     score = ctx.score * ctx.scoremult + ctx.scoreadd
   }
+  if ctx.used == 7 {
+    score += 35
+  }
   var pos CPos = cell.pos.Traverse(wlen - 1, Opposite(ctx.srch.dirn))
   prev, exists := words[ctx.sofar]
   if !exists || prev.score < score {
-    words[ctx.sofar] = FoundWord{ctx.sofar, score, pos, ctx.srch.dirn}
+    words[ctx.sofar] = FoundWord{ctx.sofar, score, ctx.used, pos, ctx.srch.dirn}
   }
   Log(ctx.srch, fmt.Sprintf("%saddword: %s\n", Spaces(depth * 2), words[ctx.sofar]))
 }

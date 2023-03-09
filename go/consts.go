@@ -161,6 +161,23 @@ var board8 = BoardSpec{
   },
 }
 
+// 9th solo challenge board
+var board9 = BoardSpec{
+  SOLO_WIDTH, SOLO_HEIGHT, []RowSpec{
+    { 0: TW, 4: DL, 8: TW },
+    { 0: TL, 1: DL, 2: TL, 6: TL, 7: DL, 8: TL },
+    { 2: DW, 6: DW },
+    { 2: DL, 3: TL, 5: TL, 6: DL, 10: TW },
+    { 2: UK, 7: TL, 9: DW },
+    { 2: DL, 3: TL, 5: TL, 6: DL, 10: TL },
+    { 2: DW, 6: DW },
+    { 0: TL, 1: DL, 2: TL, 6: TL, 7: DL, 8: TL },
+    { 0: TW, 4: DL, 8: TW },
+    { 0: DL, 4: DW, 8: DL, 9: TL, 10: DL },
+    { 3: TL, 5: TW, 10: DW },
+  },
+}
+
 var PlayerBoards = []BoardSpec{
   {},
   player_board1,
@@ -177,6 +194,7 @@ var SoloBoards = []BoardSpec{
   board6,
   board7,
   board8,
+  board9,
 }
 
 type Dir int8

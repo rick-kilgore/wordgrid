@@ -115,17 +115,16 @@ func DisplayResults(grid Grid, words map[string]FoundWord, details_count int, so
 
   less := func(i, j int) bool {
     ki, kj := keys[i], keys[j]
-    ri, rj := []rune(ki), []rune(kj)
     if sortbylen {
-      if len(ri) != len(rj) {
-        return len(ri) < len(rj)
+      if words[ki].used != words[kj].used {
+        return words[ki].used < words[kj].used
       }
       return words[ki].score < words[kj].score
 
     } else if words[ki].score != words[kj].score {
       return words[ki].score < words[kj].score
     }
-    return len(ri) < len(rj)
+    return words[ki].used < words[kj].used
   }
 
   sort.Slice(keys, less)
