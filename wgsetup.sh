@@ -6,11 +6,20 @@ if [ -z "$1" -o ! -x ./wordgrid ]; then
   return
 fi
 
+solo=0
 board=$1
+if [ ! -f $board ]; then
+  if echo $board | grep -q games/; then
+    cp blank.data $board
+  else
+    solo=1
+    cp solo.data $board
+  fi
+fi
 shift
 
 specargs="-pb 2"
-if [ "$1" == "solo" ]; then
+if [ "$solo" -gt 0 -o "$1" == "solo" ]; then
   shift
   bnum=1
   if echo "$1" | grep -Pq '^\d+$'; then
@@ -38,7 +47,6 @@ wgl() {
 bd() {
   PS1="${PS1/ \(\[1;31mwg *\[m\)/}"
   . ./wgsetup.sh "$1"
-  vim "$1"
 }
 
 PS1="${PS1/:/ ([1;31mwg $board[m):}"
@@ -50,3 +58,5 @@ destroy() {
     . ./wgsetup.sh
   }
 }
+
+vim $board

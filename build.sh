@@ -2,8 +2,13 @@
 
 [ -f $HOME/.path.sh ] && source $HOME/.path.sh
 
+realpath=realpath
+if test `uname -s` = "Darwin"; then
+  realpath=grealpath
+fi
+
 startdir=$PWD
-rp=$(realpath $0)
+rp=$($realpath $0)
 dir=$(dirname $rp)
 echo "cd $dir/go/"
 cd $dir/go
@@ -14,5 +19,5 @@ else
   echo release build...
   go build -o ../wordgrid . |& sed 's#^\./#./go/#' | tee ../.mk.log
 fi
-echo "done -> $(realpath --relative-to=${startdir} ../wordgrid)"
+echo "done -> $($realpath --relative-to=${startdir} ../wordgrid)"
 
