@@ -45,15 +45,15 @@ wgl() {
 }
 
 bd() {
-  PS1="${PS1/ \(\[1;31mwg *\[m\)/}"
+  PROMPT="${PROMPT/ \(\%\{*31m\%\}*:/:}"
   . ./wgsetup.sh "$1"
 }
 
-PS1="${PS1/:/ ([1;31mwg $board[m):}"
+PROMPT="${PROMPT/: /} (%{[1;31m%}wg ${board}%{[m%}): "
 
 destroy() {
   unfunction wg wgs wgl bd destroy
-  PS1="${PS1/ \(\[1;31mwg *\[m\)/}"
+  PROMPT="${PROMPT/ \(\%\{*31m\%\}*:/:}"
   wg() {
     . ./wgsetup.sh
   }
