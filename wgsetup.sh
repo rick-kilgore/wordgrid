@@ -19,14 +19,23 @@ fi
 shift
 
 specargs="-pb 2"
-if [ "$solo" -gt 0 -o "$1" == "solo" ]; then
-  shift
+if [ "$1" == "solo" ]; then
+  solo=1
   bnum=1
+  shift
+elif echo $board | grep -qv games/; then
+  solo=1
+  bnum=1
+fi
+if [ "$solo" -gt 0 ]; then
   if echo "$1" | grep -Pq '^\d+$'; then
     bnum=$1
     shift
   fi
   specargs="-sb $bnum"
+elif echo "$1" | grep -Pq '^\d+$'; then
+  specargs="-pb $1"
+  shift
 fi
 
 wg() {
@@ -36,17 +45,17 @@ wg() {
 
 wgs() {
   letters=$1; shift
-  ./wordgrid -f $board $specargs -w scrabble_words.txt $@ $letters te run.clog && vim run.clog $board
+  ./wordgrid -f $board $specargs -w scrabble_words.txt $@ $letters te run.clog && vim run.clog scrabble_words.txt $board
 }
 
 wgl() {
   letters=$1; shift
-  ./wordgrid -f $board $specargs -w larger.txt $@ $letters te run.clog && vim run.clog $board
+  ./wordgrid -f $board $specargs -w larger.txt $@ $letters te run.clog && vim run.clog larger.txt $board
 }
 
 bd() {
   PROMPT="${PROMPT/ \(\%\{*31m\%\}*:/:}"
-  . ./wgsetup.sh "$1"
+  . ./wgsetup.sh $@
 }
 
 PROMPT="${PROMPT/: /} (%{[1;31m%}wg ${board}%{[m%}): "

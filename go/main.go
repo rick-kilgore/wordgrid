@@ -29,7 +29,7 @@ func init() {
 	pboard = flag.Int("pb", 0, "specify a player board to use (1-based index)")
 	pos = flag.String("p", "", "look for words starting at x,y pos")
 	row = flag.Int("r", -1, "look for words starting in row N")
-	details_count = flag.Int("d", 10, "number of detailed results to show")
+	details_count = flag.Int("d", 20, "number of detailed results to show")
 	bylen = flag.Bool("l", false, "sort results by word length first")
 	verbose = flag.Bool("v", false, "print some debugging info on console")
 	showboard = flag.Int("s", -1, "show the tiles on board N")
